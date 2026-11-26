@@ -1,6 +1,6 @@
 {
   "farm": "더조은수산",
-  "updated": "2026-11-26T10:33:50.082Z",
+  "updated": "2026-11-26T10:34:22.444Z",
   "tanks": {
     "111": {
       "count": 1420,
@@ -143,8 +143,8 @@
       "note": ""
     },
     "321": {
-      "count": 970,
-      "status": "active",
+      "count": 0,
+      "status": "empty",
       "note": ""
     },
     "322": {
@@ -191,6 +191,14 @@
       "action": "Add",
       "from": 1110,
       "to": 1280
+    },
+    {
+      "t": "2026-11-26T10:34:20.567Z",
+      "tank": "321",
+      "action": "Harvest",
+      "reason": "Sold",
+      "from": 970,
+      "to": 0
     }
   ]
 }
