@@ -1,6 +1,6 @@
 {
   "farm": "더조은수산",
-  "updated": "2026-11-26T10:35:48.616Z",
+  "updated": "2026-11-26T10:36:22.125Z",
   "tanks": {
     "111": {
       "count": 1420,
@@ -95,7 +95,8 @@
     "213": {
       "count": 0,
       "status": "empty",
-      "note": ""
+      "note": "",
+      "label": "Unknown Fish Count"
     },
     "214": {
       "count": 1680,
@@ -228,6 +229,12 @@
       "reason": "Sold",
       "from": 1050,
       "to": 0
+    },
+    {
+      "t": "2026-11-26T10:36:21.601Z",
+      "tank": "213",
+      "action": "Label",
+      "note": "Unknown Fish Count"
     }
   ]
 }
