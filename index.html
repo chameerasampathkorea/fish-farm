@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b5d7a">
+<title>Fish Tank Map</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐟</text></svg>">
+<style>
+:root{
+  --bg:#f3f6f8; --card:#ffffff; --ink:#122430; --muted:#5d7180; --line:#d6e0e6;
+  --water1:#e3f2f9; --water2:#0b6c8f; --accent:#0b5d7a;
+  --ready:#16a34a; --ready-bg:#dcfce7;
+  --rim:#e9ad1f; --rim-dark:#b9800f; --concrete:#8f9599; --pool1:#7fb2bb; --pool2:#3f7f8f; --floor:#c3c6c4; --empty-bg:#eceff1; --empty-ink:#8a979f;
+  --danger:#c0392b; --ok:#1e8e5a;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0d1419; --card:#16212a; --ink:#e4edf2; --muted:#93a6b3; --line:#26353f;
+    --water1:#12303e; --water2:#3fb4dd; --accent:#4cb3d8;
+    --ready:#34d399; --ready-bg:#0f3324; --empty-bg:#1b252c; --empty-ink:#6c7c86;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI","Noto Sans KR",Roboto,sans-serif;
+  padding-bottom:env(safe-area-inset-bottom)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+
+/* Header */
+header{position:relative;color:#fff;background:#0b5d7a url(images/tank.jpg) center 60%/cover;}
+header::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,40,56,.55),rgba(4,40,56,.85))}
+.hwrap{position:relative;max-width:1200px;margin:0 auto;padding:18px 16px 16px}
+.toprow{display:flex;align-items:center;gap:8px}
+.toprow h1{font-size:20px;margin:0;flex:1;letter-spacing:.2px}
+.toprow .sub{font-size:12px;opacity:.85;font-weight:400;display:block}
+.toprow h1{min-width:0}
+select.pill{width:auto;padding:6px 8px;font-size:13px;appearance:auto}
+.pill{white-space:nowrap;border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;border-radius:999px;padding:6px 10px;font-size:13px}
+.pill.on{background:#fff;color:#0b5d7a;border-color:#fff;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.stat{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:8px 10px;backdrop-filter:blur(4px)}
+.stat b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.stat span{font-size:11.5px;opacity:.9}
+.updated{font-size:12px;opacity:.85;margin-top:10px}
+
+main{max-width:1200px;margin:0 auto;padding:12px 16px 40px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 12px}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-size:13px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-left:auto}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px;border:1px solid var(--line)}
+
+/* Buildings */
+.buildings{display:flex;flex-direction:column;gap:14px}
+@media (min-width:1000px){ .buildings{flex-direction:row-reverse;align-items:flex-start} .bld.b1{flex:1.6} .bld{flex:1} }
+.bld{background:var(--card);border-radius:14px;box-shadow:var(--shadow);padding:12px;border:1px solid var(--line);min-width:0}
+.bhead{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.bhead h2{margin:0;font-size:17px}
+.bhead .tot{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums}
+.bhead .meta{font-size:12px;color:var(--muted)}
+.grid{display:grid;gap:8px;padding:3px}
+.tank{position:relative;border:4px solid var(--rim);border-radius:10px;padding:4px 5px 4px;min-height:70px;text-align:left;color:#fff;
+  display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;transition:transform .08s;
+  background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.28),transparent 55%),linear-gradient(160deg,var(--pool1),var(--pool2));
+  box-shadow:0 0 0 2px var(--concrete),inset 0 3px 0 var(--rim-dark),inset 0 0 14px rgba(0,30,40,.35)}
+.tank:active{transform:scale(.97)}
+.tank .no,.tank .cnt{position:relative;z-index:2;align-self:flex-start;background:rgba(6,32,40,.62);border-radius:5px;padding:0 4px;line-height:1.35}
+.tank .no{font-size:10.5px;font-weight:600;opacity:.95}
+.tank .cnt{font-size:clamp(11.5px,3.2vw,14.5px);white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.3px}
+.tank .ico{position:absolute;z-index:3;top:2px;right:3px;font-size:13px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
+.tank .fish{position:absolute;z-index:1;height:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35));pointer-events:none}
+.tank.empty{background:repeating-linear-gradient(135deg,rgba(0,0,0,.04) 0 6px,transparent 6px 12px),var(--floor);box-shadow:0 0 0 2px var(--concrete),inset 0 3px 0 var(--rim-dark),inset 0 0 10px rgba(0,0,0,.18)}
+.tank.empty .cnt{font-weight:600;font-size:11px;white-space:normal}
+.tank.ready{box-shadow:0 0 0 2px var(--concrete),0 0 0 5px var(--ready),inset 0 3px 0 var(--rim-dark),inset 0 0 14px rgba(0,30,40,.35)}
+.tank.dim{opacity:.25}
+.tank.diag125{clip-path:polygon(0 0,62% 0,100% 45%,100% 100%,0 100%)}
+.tank.diag137{clip-path:polygon(0 0,45% 0,100% 55%,100% 100%,0 100%)}
+.tank.small{min-height:44px}
+.species{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:8px;margin-bottom:12px}
+.species img{width:104px;height:72px;object-fit:cover;border-radius:10px;flex:none}
+.species b{display:block;font-size:16px}
+.legend .sw{display:inline-block;width:14px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px;border:2px solid var(--rim)}
+.corridor{grid-column:1/-1;height:6px;border-radius:3px;background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 14px);opacity:.7}
+@media (max-width:420px){ .b1 .tank .cnt{font-size:10.5px;padding:0 2px;letter-spacing:-.5px} .b1 .tank .no{font-size:9.5px;padding:0 2px} .tank{padding:3px 2px 2px;min-height:62px;border-width:3px} .grid{gap:6px} }
+
+.panel{background:var(--card);border-radius:14px;box-shadow:var(--shadow);border:1px solid var(--line);padding:12px;margin-top:14px}
+.panel h3{margin:0 0 8px;font-size:15px}
+.log{list-style:none;margin:0;padding:0;font-size:13px}
+.log li{display:flex;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+.log li:first-child{border-top:0}
+.log .when{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;min-width:86px}
+.log .what{flex:1}
+.d-neg{color:var(--danger);font-weight:600}.d-pos{color:var(--ok);font-weight:600}
+.plan img{width:100%;border-radius:10px;display:block}
+details summary{cursor:pointer;font-weight:600}
+
+/* Sheet */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--card);border-radius:18px 18px 0 0;z-index:21;
+  transform:translateY(105%);transition:transform .22s ease;padding:14px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -6px 30px rgba(0,0,0,.25)}
+@media (min-width:700px){ .sheet{left:50%;width:480px;margin-left:-240px;bottom:auto;top:50%;border-radius:18px;transform:translateY(-50%) scale(.96);opacity:0;pointer-events:none;transition:.18s} }
+body.sheet-open .backdrop{display:block}
+body.sheet-open .sheet{transform:translateY(0)}
+@media (min-width:700px){ body.sheet-open .sheet{transform:translateY(-50%) scale(1);opacity:1;pointer-events:auto} }
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 10px}
+.shead{display:flex;align-items:center;gap:10px}
+.shead h2{margin:0;font-size:20px}
+.badge{font-size:12px;border-radius:999px;padding:3px 9px;font-weight:600}
+.badge.active{background:var(--water1);color:var(--water2)}
+.badge.ready{background:var(--ready-bg);color:var(--ready)}
+.badge.empty{background:var(--empty-bg);color:var(--empty-ink)}
+.x{margin-left:auto;border:0;background:var(--bg);border-radius:50%;width:34px;height:34px;font-size:18px}
+.big{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;margin:6px 0 2px}
+.muted{color:var(--muted);font-size:13px}
+.sec{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}
+.sec label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.row{display:flex;gap:8px}
+.row>*{min-width:0}
+input[type=number],input[type=text],input[type=password],select,textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 11px;font-size:16px}
+textarea{min-height:60px;resize:vertical}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:600;background:var(--accent);color:#fff;white-space:nowrap}
+.btn.ghost{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.btn.red{background:var(--danger)}
+.btn.amber{background:var(--ready);color:#fff}
+.btn.green{background:var(--ok)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5}
+.qs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.qs button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:5px 10px;font-size:13px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini-log{font-size:12.5px;margin:6px 0 0;padding:0;list-style:none;color:var(--muted)}
+.mini-log li{padding:3px 0}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);background:#13232d;color:#fff;padding:10px 16px;border-radius:10px;
+  opacity:0;transition:.2s;z-index:40;font-size:14px;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--danger)}
+.busy{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:39;display:none;align-items:center;justify-content:center}
+.busy.on{display:flex}
+.spin{width:38px;height:38px;border-radius:50%;border:4px solid #fff;border-top-color:transparent;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.adminbar{display:none;background:var(--ready-bg);color:var(--ink);border:1px solid var(--ready);border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px}
+body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tank .top{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;max-width:100%}
+.tank .lbl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:700;border-radius:5px;padding:0 4px;background:#fff;color:#0b5d7a;line-height:1.4}
+.tank .lbl.hosp{background:#dc2626;color:#fff}
+.tank.hospital{box-shadow:0 0 0 2px var(--concrete),0 0 0 5px #dc2626,inset 0 3px 0 var(--rim-dark),inset 0 0 14px rgba(0,30,40,.35)}
+.badge.hosp{background:#fee2e2;color:#b91c1c}
+.dtab{width:100%;border-collapse:collapse;font-size:14px}
+.dtab th{font-size:12px;color:var(--muted);text-align:left;padding:4px;background:var(--card)}
+.dtab td{padding:3px 4px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.dtab input{padding:7px 8px}
+.dtab input.bad{border-color:var(--danger);background:#fee2e2;color:#7f1d1d}
+.dtab tr.bh td{font-weight:700;background:var(--bg);border-top:0}
+.dsum{position:sticky;bottom:-18px;background:var(--card);border-top:1px solid var(--line);padding:10px 0 6px;margin-top:8px}
+.dsum .nums{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;text-align:center}
+.dsum .nums b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+.dsum .nums span{font-size:11px;color:var(--muted)}
+.dpanel td,.dpanel th{text-align:right}.dpanel td:first-child,.dpanel th:first-child{text-align:left}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hwrap">
+    <div class="toprow">
+      <h1><span id="farmName">더조은수산</span><span class="sub" data-t="subtitle"></span></h1>
+      <select id="lang" class="pill" aria-label="Language">
+        <option value="ko">한국어</option><option value="en">EN</option>
+      </select>
+      <button id="adminBtn" class="pill" data-t="admin"></button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="sTotal">–</b><span data-t="totalFish"></span></div>
+      <div class="stat"><b id="sActive">–</b><span data-t="activeTanks"></span></div>
+      <div class="stat"><b id="sReady">–</b><span data-t="readyTanks"></span></div>
+      <div class="stat"><b id="sEmpty">–</b><span data-t="emptyTanks"></span></div>
+    </div>
+    <div class="updated"><span data-t="lastUpdate"></span>: <span id="updated">–</span> · <a href="#" id="refresh" style="color:#fff" data-t="refresh"></a></div>
+  </div>
+</header>
+
+<main>
+  <div class="adminbar"><span>🔧</span><span data-t="adminOn" style="flex:1;min-width:140px"></span><button class="btn red" id="dailyBtn" data-t="daily"></button><button class="btn ghost" id="adminOff" data-t="logout"></button></div>
+  <div class="toolbar">
+    <button class="chip on" data-f="all" data-t="fAll"></button>
+    <button class="chip" data-f="ready">🚚 <span data-t="fReady"></span></button>
+    <button class="chip" data-f="empty">⬜ <span data-t="fEmpty"></span></button>
+    <button class="chip" data-f="hospital">🏥 <span data-t="fHosp"></span></button>
+    <div class="legend">
+      <span><i class="sw" style="background:linear-gradient(160deg,var(--pool1),var(--pool2))"></i><span data-t="lgActive"></span></span>
+      <span><i class="sw" style="background:var(--pool2);outline:2px solid var(--ready)"></i><span data-t="lgReady"></span></span>
+      <span><i class="sw" style="background:var(--floor)"></i><span data-t="lgEmpty"></span></span>
+      <span><i class="sw" style="background:var(--pool2);outline:2px solid #dc2626"></i><span data-t="lgHosp"></span></span>
+    </div>
+  </div>
+
+  <div class="species"><img src="images/fish.jpg" alt=""><div><span class="muted" data-t="speciesLbl"></span><b data-t="speciesName"></b><span class="muted" data-t="speciesHint" style="font-size:12px"></span></div></div>
+
+  <div class="buildings" id="buildings"></div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="fl" viewBox="0 0 46 26">
+    <path d="M8 13 L0 5 Q3 13 0 21 Z" fill="#3d2818"/>
+    <ellipse cx="26" cy="13" rx="19" ry="12" fill="#8b6c4c"/>
+    <ellipse cx="26" cy="13" rx="15.5" ry="8.6" fill="#47301f"/>
+    <g fill="#f2e9da"><circle cx="16" cy="10" r=".9"/><circle cx="20" cy="15" r=".8"/><circle cx="24" cy="9" r=".9"/><circle cx="27" cy="16" r=".9"/><circle cx="31" cy="11" r=".8"/><circle cx="18" cy="18" r=".7"/><circle cx="34" cy="15" r=".7"/><circle cx="22" cy="12" r=".6"/></g>
+    <circle cx="38" cy="10" r="1.7" fill="#111"/><circle cx="39.5" cy="14.5" r="1.5" fill="#111"/>
+  </symbol></svg>
+
+  <div class="panel dpanel">
+    <h3 data-t="dailyPanel"></h3>
+    <div id="dailyList"></div>
+  </div>
+
+  <div class="panel">
+    <h3 data-t="history"></h3>
+    <ul class="log" id="log"></ul>
+  </div>
+
+  <div class="panel plan">
+    <details>
+      <summary data-t="origPlan"></summary>
+      <p class="muted" data-t="origPlanNote"></p>
+      <img src="images/floor-plan.jpg" alt="Floor plan" loading="lazy">
+    </details>
+  </div>
+</main>
+
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast"></div>
+<div class="busy" id="busy"><div class="spin"></div></div>
+
+<script>
+/* ===================== LAYOUT (from floor plan) ===================== */
+// c = column, r = row (grid lines). Edit here if a tank is added/moved.
+const LAYOUT = [
+  { id:"1", cls:"b1", cols:"repeat(3,1fr) .9fr 1fr 1fr 1fr", rows:"auto 6px auto auto", tanks:[
+    {id:"111",c:1,r:1},{id:"112",c:2,r:1},{id:"113",c:3,r:1},{id:"114",c:4,r:1,small:1},
+    {corr:1,r:2,c:"1/4"},
+    {id:"121",c:1,r:3},{id:"122",c:2,r:3},{id:"123",c:3,r:3},{id:"124",c:4,r:3},{id:"125",c:"5/7",r:3,diag:"diag125"},
+    {id:"131",c:1,r:4},{id:"132",c:2,r:4},{id:"133",c:3,r:4},{id:"134",c:4,r:4},{id:"135",c:5,r:4},{id:"136",c:6,r:4},{id:"137",c:7,r:4,diag:"diag137"}
+  ]},
+  { id:"2", cols:"repeat(4,1fr)", rows:"auto 6px auto", tanks:[
+    {id:"214",c:1,r:1},{id:"213",c:2,r:1},{id:"212",c:3,r:1},{id:"211",c:4,r:1},
+    {corr:1,r:2},
+    {id:"224",c:1,r:3},{id:"223",c:2,r:3},{id:"222",c:3,r:3},{id:"221",c:4,r:3}
+  ]},
+  { id:"3", cols:"repeat(4,1fr)", rows:"auto 6px auto", tanks:[
+    {id:"314",c:1,r:1},{id:"313",c:2,r:1},{id:"312",c:3,r:1},{id:"311",c:4,r:1},
+    {corr:1,r:2},
+    {id:"324",c:1,r:3},{id:"323",c:2,r:3},{id:"322",c:3,r:3},{id:"321",c:4,r:3}
+  ]}
+];
+
+/* ===================== TEXT (KO / EN) ===================== */
+const T = {
+  ko:{subtitle:"수조 평면도 · 사육 현황",admin:"관리",totalFish:"총 마리수",activeTanks:"사육 수조",readyTanks:"출하 준비",emptyTanks:"빈 수조",
+    lastUpdate:"최근 업데이트",refresh:"새로고침",fAll:"전체",fReady:"출하 준비",fEmpty:"빈 수조",lgActive:"사육중",lgReady:"출하 준비",lgEmpty:"빈 수조",
+    history:"변경 기록",noHistory:"아직 기록이 없습니다",origPlan:"원본 평면도 사진",origPlanNote:"2026.11.13 손글씨 기록 기준으로 입력됨.",
+    bld:"동",fish:"마리",tanks:"수조",empty:"비어 있음",active:"사육중",ready:"출하 준비",note:"메모",
+    reduce:"감소 (폐사/판매)",reduceBtn:"빼기",add:"추가 (입식)",addBtn:"더하기",setExact:"정확한 수량 입력",setBtn:"저장",
+    reason:"사유",rDied:"폐사",rSold:"판매/출하",rMoved:"이동",rOther:"기타",
+    markReady:"🚚 출하 준비 표시",unmarkReady:"출하 준비 해제",harvest:"✅ 출하 완료 → 빈 수조",restock:"입식 (새 물고기)",restockBtn:"입식",
+    move:"다른 수조로 이동",moveBtn:"이동",to:"받는 수조",saveNote:"메모 저장",recent:"최근 기록",
+    setupTitle:"관리자 설정",setupHelp:"GitHub 토큰은 이 휴대폰에만 저장됩니다. (Fine-grained token · Contents: Read and write)",
+    owner:"GitHub 사용자명",repo:"저장소 이름",branch:"브랜치",token:"토큰",saveSetup:"저장 및 확인",adminOn:"관리자 모드 – 수조를 눌러 수정하세요",logout:"로그아웃",
+    saved:"저장됨 ✓ (보스 화면은 약 1분 후 반영)",saving:"저장 중…",err:"오류",confirmHarvest:"출하 완료하고 수조를 비울까요?",invalid:"숫자를 확인하세요",
+    tooMany:"현재 수량보다 많습니다",ok:"연결됨 ✓",viewOnly:"보기 전용",lastChange:"마지막 변경",
+    aReduce:"감소",aAdd:"추가",aSet:"수량 수정",aReady:"출하 준비",aUnready:"출하 준비 해제",aHarvest:"출하 완료(빈 수조)",aRestock:"입식",aMoveOut:"이동 →",aMoveIn:"이동 ←",aNote:"메모",speciesLbl:"사육 어종",speciesName:"광어 (넙치)",speciesHint:"수조 안 물고기 그림이 많을수록 마리수가 많음",emptyShort:"비움",
+    loginTitle:"관리자 로그인",user:"아이디",pass:"비밀번호",loginBtn:"로그인",wrongLogin:"아이디 또는 비밀번호가 틀렸습니다",
+    needToken:"GitHub 연결이 필요합니다 (최초 1회)",firstSetup:"처음 한 번만: 저장하려면 이 휴대폰에 GitHub 토큰을 연결하세요.",removeToken:"이 휴대폰에서 토큰 삭제",
+    daily:"📋 일일 폐사 입력",dailyTitle:"일일 폐사 · 투약 입력",date:"날짜",tank:"수조",cur:"현재",rMedicine:"투약",sum:"합계",
+    dailyHint:"숫자를 넣은 수조만 저장됩니다. 같은 날짜를 다시 입력하면 더해집니다.",dSave:"저장 · 총계 반영",newTotal:"새 총 마리수",totLoss:"총 감소",
+    dailyPanel:"일일 폐사 현황 (최근 7일)",noDaily:"아직 입력이 없습니다",aDaily:"일일 감소",
+    hospital:"병원 수조",hospShort:"🏥 병원",mkHosp:"🏥 병원 수조로 지정",unHosp:"병원 수조 해제",labelLbl:"수조 이름표",labelPh:"예: 치어, 선별, 격리…",
+    aHosp:"병원 수조 지정",aUnhosp:"병원 수조 해제",aLabel:"이름표",fHosp:"병원",lgHosp:"병원 수조"},
+  en:{subtitle:"Tank map · Stock status",admin:"Admin",totalFish:"Total fish",activeTanks:"Stocked tanks",readyTanks:"Delivery ready",emptyTanks:"Empty tanks",
+    lastUpdate:"Last update",refresh:"Refresh",fAll:"All",fReady:"Ready",fEmpty:"Empty",lgActive:"Stocked",lgReady:"Delivery ready",lgEmpty:"Empty",
+    history:"Change history",noHistory:"No changes yet",origPlan:"Original floor plan photo",origPlanNote:"Data entered from the handwritten sheet of 2026-11-13.",
+    bld:"Building",fish:"fish",tanks:"tanks",empty:"Empty",active:"Stocked",ready:"Delivery ready",note:"Note",
+    reduce:"Reduce (died / sold)",reduceBtn:"Subtract",add:"Add fish",addBtn:"Add",setExact:"Set exact count",setBtn:"Save",
+    reason:"Reason",rDied:"Died",rSold:"Sold / delivered",rMoved:"Moved",rOther:"Other",
+    markReady:"🚚 Mark delivery ready",unmarkReady:"Unmark delivery ready",harvest:"✅ Harvested → Empty tank",restock:"Restock (new fish)",restockBtn:"Restock",
+    move:"Move to another tank",moveBtn:"Move",to:"To tank",saveNote:"Save note",recent:"Recent changes",
+    setupTitle:"Admin setup",setupHelp:"The GitHub token is stored only on this phone. (Fine-grained token · Contents: Read and write)",
+    owner:"GitHub username",repo:"Repository name",branch:"Branch",token:"Token",saveSetup:"Save & check",adminOn:"Admin mode – tap a tank to edit",logout:"Log out",
+    saved:"Saved ✓ (boss view updates in ~1 min)",saving:"Saving…",err:"Error",confirmHarvest:"Mark harvested and empty this tank?",invalid:"Check the number",
+    tooMany:"More than the current count",ok:"Connected ✓",viewOnly:"View only",lastChange:"Last change",
+    aReduce:"Reduced",aAdd:"Added",aSet:"Count set",aReady:"Delivery ready",aUnready:"Ready removed",aHarvest:"Harvested (empty)",aRestock:"Restocked",aMoveOut:"Moved →",aMoveIn:"Moved ←",aNote:"Note",speciesLbl:"Species",speciesName:"Olive flounder (광어)",speciesHint:"More fish drawn = more fish in the tank",emptyShort:"Empty",
+    loginTitle:"Admin login",user:"Username",pass:"Password",loginBtn:"Log in",wrongLogin:"Wrong username or password",
+    needToken:"Connect GitHub first (one time only)",firstSetup:"First time only: connect a GitHub token on this phone so changes can be saved.",removeToken:"Remove token from this phone",
+    daily:"📋 Daily loss entry",dailyTitle:"Daily deaths & medicine",date:"Date",tank:"Tank",cur:"Now",rMedicine:"Medicine",sum:"Total",
+    dailyHint:"Only tanks with a number are saved. Entering the same date again adds to it.",dSave:"Save & update totals",newTotal:"New total",totLoss:"Total loss",
+    dailyPanel:"Daily losses (last 7 days)",noDaily:"No entries yet",aDaily:"Daily loss",
+    hospital:"Hospital tank",hospShort:"🏥 Hosp.",mkHosp:"🏥 Make hospital tank",unHosp:"Remove hospital label",labelLbl:"Tank label",labelPh:"e.g. small fish, sorted…",
+    aHosp:"Hospital tank",aUnhosp:"Hospital removed",aLabel:"Label",fHosp:"Hospital",lgHosp:"Hospital tank"},
+};
+const BLD_NAME = {ko:id=>id+"동", en:id=>"Building "+id};
+
+/* ===================== STATE ===================== */
+const LS = k => { try { return localStorage.getItem(k) } catch(e){ return null } };
+const LSset = (k,v) => { try { v==null ? localStorage.removeItem(k) : localStorage.setItem(k,v) } catch(e){} };
+let lang = T[LS("ff_lang")] ? LS("ff_lang") : "ko";
+let data = null, filter = "all", openId = null;
+const t = k => (T[lang] && T[lang][k]) || T.en[k] || k;
+const fmt = n => (n||0).toLocaleString("en-US");
+const $ = s => document.querySelector(s);
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function cfg(){
+  // Auto-detect owner/repo when hosted on GitHub Pages: https://OWNER.github.io/REPO/
+  let owner = LS("ff_owner"), repo = LS("ff_repo");
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/i);
+  if(m){ owner = owner || m[1]; repo = repo || (location.pathname.split("/").filter(Boolean)[0] || (m[1]+".github.io")); }
+  return { owner:owner||"", repo:repo||"", branch:LS("ff_branch")||"main", token:LS("ff_token")||"" };
+}
+// Admin login. Default: admin / admin. To change the password put the SHA-256 of the new one here
+// (e.g. https://emn178.github.io/online-tools/sha256.html). This only hides the admin screens;
+// saving still needs the GitHub token that is stored on the admin's phone.
+const ADMIN_USER = "admin";
+const ADMIN_PASS_SHA256 = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918";
+const isAdmin = () => LS("ff_login") === "1";
+const hasToken = () => !!cfg().token;
+async function sha256(txt){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(txt));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+/* ===================== GITHUB STORAGE ===================== */
+const b64enc = s => btoa(unescape(encodeURIComponent(s)));
+const b64dec = s => decodeURIComponent(escape(atob(s.replace(/\s/g,""))));
+async function gh(path, opts={}){
+  const c = cfg();
+  const r = await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/${path}`, {
+    ...opts, cache:"no-store",
+    headers:{ "Accept":"application/vnd.github+json", "Authorization":"Bearer "+c.token, ...(opts.headers||{}) }
+  });
+  if(!r.ok){ let m=""; try{ m=(await r.json()).message }catch(e){} throw new Error(r.status+" "+m); }
+  return r.json();
+}
+async function ghRead(){
+  const c = cfg();
+  const j = await gh(`contents/data.json?ref=${encodeURIComponent(c.branch)}&t=${Date.now()}`);
+  return { sha:j.sha, data:JSON.parse(b64dec(j.content)) };
+}
+// Apply a change to the LATEST file on GitHub, then commit. Retries once on conflict.
+async function commit(mutator, message){
+  if(!hasToken()){ openSetup(true); throw new Error(t("needToken")); }
+  for(let attempt=0; attempt<3; attempt++){
+    const { sha, data:fresh } = await ghRead();
+    mutator(fresh);
+    fresh.updated = new Date().toISOString();
+    fresh.log = (fresh.log||[]).slice(-300);
+    try{
+      await gh("contents/data.json", { method:"PUT", body:JSON.stringify({
+        message, sha, branch:cfg().branch, content:b64enc(JSON.stringify(fresh,null,2)+"\n")
+      })});
+      return fresh;
+    }catch(e){ if(!/^409|^422/.test(e.message) || attempt==2) throw e; }
+  }
+}
+
+/* ===================== LOAD ===================== */
+async function load(){
+  try{
+    if(hasToken()){ data = (await ghRead()).data; }        // admin: always freshest from GitHub
+    else{
+      const r = await fetch("data.json?t="+Date.now(), {cache:"no-store"});
+      data = await r.json();
+    }
+  }catch(e){
+    if(!data){ const r = await fetch("data.json?t="+Date.now(), {cache:"no-store"}); data = await r.json(); }
+    toast(t("err")+": "+e.message, true);
+  }
+  render();
+}
+
+/* ===================== RENDER ===================== */
+// Draw flounder icons in the tank: more fish -> more icons (1..9), placed on a jittered 3x3 grid
+function rng(seed){ return () => { seed = (seed*16807) % 2147483647; return (seed-1)/2147483646; }; }
+function fishSvg(x, d, max){
+  if(d.status==="empty" || !d.count) return "";
+  const cap = x.small ? 3 : 9;
+  const n = Math.max(1, Math.min(cap, Math.round(d.count/max*cap)));
+  const r = rng(parseInt(x.id,10)*7919+13);
+  const slots = [...Array(9).keys()].sort(()=>r()-.5);
+  const top0 = x.diag ? 38 : 14, h = 100-top0-22;
+  return slots.slice(0,n).map(k => {
+    const cx = k%3, cy = Math.floor(k/3);
+    const left = 3 + cx*27 + r()*7, top = top0 + cy*(h/3) + r()*(h/6);
+    const w = x.small ? 15 : 17 + r()*5, rot = Math.round(r()*70-35), flip = r()<.5 ? -1 : 1;
+    return `<svg class="fish" viewBox="0 0 46 26" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%;width:min(${w.toFixed(0)}px,36%);transform:rotate(${rot}deg) scaleX(${flip})"><use href="#fl"/></svg>`;
+  }).join("");
+}
+function tankInfo(id){ return (data.tanks[id] ||= {count:0,status:"empty",note:""}); }
+function render(){
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-t]").forEach(el => el.textContent = t(el.dataset.t));
+  $("#lang").value = lang;
+  document.body.classList.toggle("admin", isAdmin());
+  $("#adminBtn").classList.toggle("on", isAdmin());
+  if(!data) return;
+  $("#farmName").textContent = data.farm || "Fish Farm";
+
+  const all = Object.values(data.tanks);
+  $("#sTotal").textContent = fmt(all.reduce((a,x)=>a+(x.status==="empty"?0:x.count),0));
+  $("#sActive").textContent = all.filter(x=>x.status!=="empty").length;
+  $("#sReady").textContent = all.filter(x=>x.status==="ready").length;
+  $("#sEmpty").textContent = all.filter(x=>x.status==="empty").length;
+  $("#updated").textContent = fmtDate(data.updated);
+
+  const max = Math.max(...all.map(x=>x.count), 1);
+  $("#buildings").innerHTML = LAYOUT.map(b => {
+    const ids = b.tanks.filter(x=>x.id).map(x=>x.id);
+    const tot = ids.reduce((a,id)=>a+(tankInfo(id).status==="empty"?0:tankInfo(id).count),0);
+    const ready = ids.filter(id=>tankInfo(id).status==="ready").length;
+    const empty = ids.filter(id=>tankInfo(id).status==="empty").length;
+    const cells = b.tanks.map(x => {
+      const pos = `grid-column:${x.c};grid-row:${x.r}`;
+      if(x.corr) return `<div class="corridor" style="${pos}"></div>`;
+      const d = tankInfo(x.id), st = d.status;
+      const dim = filter==="all" ? "" : (filter==="hospital" ? d.hospital : st===filter) ? "" : " dim";
+      const lbl = (d.hospital ? `<span class="lbl hosp">${x.small ? "🏥" : t("hospShort")}</span>` : "") + (d.label ? `<span class="lbl">${esc(d.label)}</span>` : "");
+      return `<button class="tank ${st} ${d.hospital?"hospital":""} ${x.diag||""} ${x.small?"small":""}${dim}" style="${pos}" data-id="${x.id}" aria-label="${x.id}">
+        ${fishSvg(x, d, max)}<span class="top"><span class="no">${x.id}</span>${lbl}</span>
+        <span class="cnt">${st==="empty" ? t("emptyShort") : fmt(d.count)}</span>
+        ${st==="ready"?'<span class="ico">🚚</span>':""}${d.note?'<span class="ico" style="right:'+(st==="ready"?"20px":"4px")+'">📝</span>':""}
+      </button>`;
+    }).join("");
+    return `<section class="bld ${b.cls||""}">
+      <div class="bhead"><h2>${esc(BLD_NAME[lang](b.id))}</h2>
+        <span class="meta">${ready?"🚚 "+ready+" · ":""}${empty?"⬜ "+empty:""}</span>
+        <span class="tot">${fmt(tot)} <small class="meta">${t("fish")}</small></span></div>
+      <div class="grid" style="grid-template-columns:${b.cols};grid-template-rows:${b.rows}">${cells}</div>
+    </section>`;
+  }).join("");
+
+  const days = Object.entries(data.daily||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7);
+  $("#dailyList").innerHTML = days.length ? `<table class="dtab"><thead><tr><th>${t("date")}</th><th>${t("rDied")}</th><th>${t("rMedicine")}</th><th>${t("sum")}</th><th>${t("totalFish")}</th></tr></thead><tbody>${
+    days.map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td><td class="d-neg">${fmt(r.died)}</td><td class="d-neg">${fmt(r.med)}</td><td><b>${fmt(r.died+r.med)}</b></td><td>${r.total!=null?fmt(r.total):"–"}</td></tr>`).join("")
+  }</tbody></table>` : `<p class="muted">${t("noDaily")}</p>`;
+
+  const log = (data.log||[]).slice().reverse().slice(0,40);
+  $("#log").innerHTML = log.length ? log.map(logLine).join("") : `<li class="muted">${t("noHistory")}</li>`;
+  if(openId) openSheet(openId, true);
+}
+function fmtDate(s){
+  if(!s) return "–"; const d = new Date(s); if(isNaN(d)) return s;
+  const p = n => String(n).padStart(2,"0");
+  return `${d.getFullYear()}.${p(d.getMonth()+1)}.${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function logLine(e){
+  const delta = e.to!=null && e.from!=null ? e.to-e.from : null;
+  const dtxt = delta ? `<span class="${delta<0?"d-neg":"d-pos"}">${delta>0?"+":""}${fmt(delta)}</span>` : "";
+  const extra = [e.died?t("rDied")+" "+fmt(e.died):"", e.med?t("rMedicine")+" "+fmt(e.med):"", e.reason?t("r"+e.reason):"", e.other?("#"+e.other):"", e.note?("“"+esc(e.note)+"”"):""].filter(Boolean).join(" · ");
+  return `<li><span class="when">${fmtDate(e.t).slice(5)}</span><span class="what"><b>${e.tank}</b> ${t("a"+e.action)} ${dtxt} ${e.to!=null?"→ "+fmt(e.to):""}${extra?` <span class="muted">${extra}</span>`:""}</span></li>`;
+}
+
+/* ===================== SHEET (tank detail / admin edit) ===================== */
+function openSheet(id, refresh){
+  openId = id;
+  const d = tankInfo(id), st = d.status, admin = isAdmin();
+  const hist = (data.log||[]).filter(e=>e.tank===id).slice(-5).reverse();
+  const others = LAYOUT.flatMap(b=>b.tanks.filter(x=>x.id&&x.id!==id).map(x=>x.id));
+  let h = `<div class="grab"></div>
+    <div class="shead"><h2>${id}</h2><span class="badge ${st}">${st==="ready"?"🚚 ":""}${t(st)}</span>${d.hospital?`<span class="badge hosp">🏥 ${t("hospital")}</span>`:""}${d.label?`<span class="badge active">${esc(d.label)}</span>`:""}<button class="x" data-act="close">✕</button></div>
+    <div class="big">${st==="empty" ? "0" : fmt(d.count)} <small class="muted">${t("fish")}</small></div>
+    ${d.note?`<div class="muted">📝 ${esc(d.note)}</div>`:""}`;
+  if(admin){
+    if(st==="empty"){
+      h += `<div class="sec"><label>${t("restock")}</label><div class="row"><input id="inRestock" type="number" inputmode="numeric" min="1" placeholder="0"><button class="btn green" data-act="restock">${t("restockBtn")}</button></div></div>`;
+    } else {
+      h += `<div class="sec"><label>${t("reduce")}</label>
+          <div class="row"><input id="inReduce" type="number" inputmode="numeric" min="1" placeholder="0">
+          <select id="inReason" style="max-width:42%"><option value="Died">${t("rDied")}</option><option value="Medicine">${t("rMedicine")}</option><option value="Sold">${t("rSold")}</option><option value="Other">${t("rOther")}</option></select></div>
+          <div class="qs">${[1,5,10,20,50,100].map(n=>`<button data-q="${n}">-${n}</button>`).join("")}</div>
+          <button class="btn red block" style="margin-top:8px" data-act="reduce">${t("reduceBtn")}</button></div>
+        <div class="sec two">
+          <button class="btn ${st==="ready"?"ghost":"amber"}" data-act="ready">${st==="ready"?t("unmarkReady"):t("markReady")}</button>
+          <button class="btn green" data-act="harvest">${t("harvest")}</button>
+        </div>
+        <div class="sec"><label>${t("add")}</label><div class="row"><input id="inAdd" type="number" inputmode="numeric" min="1" placeholder="0"><button class="btn" data-act="add">${t("addBtn")}</button></div></div>
+        <div class="sec"><label>${t("move")}</label><div class="row"><input id="inMove" type="number" inputmode="numeric" min="1" placeholder="0">
+          <select id="inTo">${others.map(o=>`<option>${o}</option>`).join("")}</select><button class="btn ghost" data-act="move">${t("moveBtn")}</button></div></div>
+        <div class="sec"><label>${t("setExact")}</label><div class="row"><input id="inSet" type="number" inputmode="numeric" min="0" value="${d.count}"><button class="btn ghost" data-act="set">${t("setBtn")}</button></div></div>`;
+    }
+    h += `<div class="sec"><label>${t("labelLbl")}</label>
+        <button class="btn ${d.hospital?"ghost":"red"} block" data-act="hosp">${d.hospital?t("unHosp"):t("mkHosp")}</button>
+        <div class="row" style="margin-top:8px"><input id="inLabel" type="text" maxlength="20" value="${esc(d.label)}" placeholder="${t("labelPh")}"><button class="btn ghost" data-act="label">${t("setBtn")}</button></div></div>`;
+    h += `<div class="sec"><label>${t("note")}</label><textarea id="inNote">${esc(d.note)}</textarea><button class="btn ghost block" style="margin-top:6px" data-act="note">${t("saveNote")}</button></div>`;
+  }
+  if(hist.length) h += `<div class="sec"><label>${t("recent")}</label><ul class="log">${hist.map(logLine).join("")}</ul></div>`;
+  $("#sheet").innerHTML = h;
+  if(!refresh) document.body.classList.add("sheet-open");
+}
+function closeSheet(){ openId=null; document.body.classList.remove("sheet-open"); }
+
+function num(sel){ const v = parseInt($(sel)?.value,10); return Number.isFinite(v) && v>=0 ? v : null; }
+async function act(kind){
+  if(kind==="close") return closeSheet();
+  const id = openId; if(!id) return;
+  const cur = tankInfo(id);
+  const now = new Date().toISOString();
+  let mut, msg;
+  const L = (f, e) => (f.log ||= []).push({t:now, tank:id, ...e});
+  if(kind==="close") return closeSheet();
+  if(kind==="reduce"){
+    const n = num("#inReduce"), reason = $("#inReason").value;
+    if(!n) return toast(t("invalid"),true);
+    if(n>cur.count) return toast(t("tooMany"),true);
+    mut = f => { const x=f.tanks[id]; const from=x.count; x.count=Math.max(0,from-n); L(f,{action:"Reduce",reason,from,to:x.count}); };
+    msg = `${id}: -${n} (${reason})`;
+  } else if(kind==="add"){
+    const n = num("#inAdd"); if(!n) return toast(t("invalid"),true);
+    mut = f => { const x=f.tanks[id]; const from=x.count; x.count=from+n; if(x.status==="empty") x.status="active"; L(f,{action:"Add",from,to:x.count}); };
+    msg = `${id}: +${n}`;
+  } else if(kind==="restock"){
+    const n = num("#inRestock"); if(!n) return toast(t("invalid"),true);
+    mut = f => { const x=f.tanks[id]; x.count=n; x.status="active"; L(f,{action:"Restock",from:0,to:n}); };
+    msg = `${id}: restock ${n}`;
+  } else if(kind==="set"){
+    const n = num("#inSet"); if(n==null) return toast(t("invalid"),true);
+    mut = f => { const x=f.tanks[id]; const from=x.count; x.count=n; if(n===0) x.status="empty"; else if(x.status==="empty") x.status="active"; L(f,{action:"Set",from,to:n}); };
+    msg = `${id}: set ${n}`;
+  } else if(kind==="ready"){
+    const on = cur.status!=="ready";
+    mut = f => { const x=f.tanks[id]; x.status = on?"ready":"active"; L(f,{action:on?"Ready":"Unready"}); };
+    msg = `${id}: ${on?"delivery ready":"not ready"}`;
+  } else if(kind==="harvest"){
+    if(!confirm(id+" — "+t("confirmHarvest"))) return;
+    mut = f => { const x=f.tanks[id]; const from=x.count; x.count=0; x.status="empty"; L(f,{action:"Harvest",reason:"Sold",from,to:0}); };
+    msg = `${id}: harvested, now empty`;
+  } else if(kind==="move"){
+    const n = num("#inMove"), to = $("#inTo").value;
+    if(!n) return toast(t("invalid"),true);
+    if(n>cur.count) return toast(t("tooMany"),true);
+    mut = f => { const a=f.tanks[id], b=(f.tanks[to] ||= {count:0,status:"empty",note:""});
+      const fa=a.count, fb=b.count; a.count-=n; b.count+=n; if(a.count===0) a.status="empty"; if(b.status==="empty") b.status="active";
+      L(f,{action:"MoveOut",other:to,from:fa,to:a.count}); f.log.push({t:now,tank:to,action:"MoveIn",other:id,from:fb,to:b.count}); };
+    msg = `${id} → ${to}: ${n}`;
+  } else if(kind==="hosp"){
+    const on = !cur.hospital;
+    mut = f => { f.tanks[id].hospital = on; L(f,{action:on?"Hosp":"Unhosp"}); };
+    msg = `${id}: ${on?"hospital tank":"hospital label removed"}`;
+  } else if(kind==="label"){
+    const label = $("#inLabel").value.trim();
+    mut = f => { f.tanks[id].label = label; L(f,{action:"Label",note:label}); };
+    msg = `${id}: label "${label}"`;
+  } else if(kind==="note"){
+    const note = $("#inNote").value.trim();
+    mut = f => { f.tanks[id].note = note; L(f,{action:"Note",note}); };
+    msg = `${id}: note`;
+  }
+  busy(true);
+  try{ data = await commit(mut, msg); toast(t("saved")); render(); }
+  catch(e){ toast(t("err")+": "+e.message, true); }
+  finally{ busy(false); }
+}
+
+/* ===================== LOGIN ===================== */
+function openLogin(){
+  openId = null;
+  $("#sheet").innerHTML = `<div class="grab"></div>
+    <div class="shead"><h2>🔐 ${t("loginTitle")}</h2><button class="x" data-act="close">✕</button></div>
+    <form id="loginForm">
+      <div class="sec"><label>${t("user")}</label><input id="lUser" type="text" autocapitalize="off" autocomplete="username"></div>
+      <div class="sec"><label>${t("pass")}</label><input id="lPass" type="password" autocomplete="current-password"></div>
+      <div class="sec"><button class="btn block" type="submit">${t("loginBtn")}</button></div>
+    </form>`;
+  document.body.classList.add("sheet-open");
+  $("#loginForm").onsubmit = async e => {
+    e.preventDefault();
+    const ok = $("#lUser").value.trim() === ADMIN_USER && await sha256($("#lPass").value) === ADMIN_PASS_SHA256;
+    if(!ok) return toast(t("wrongLogin"), true);
+    LSset("ff_login","1"); render();
+    if(!hasToken()) openSetup(true); else closeSheet();
+  };
+}
+
+/* ===================== DAILY DEATHS / MEDICINE ===================== */
+function today(){ const d=new Date(), p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
+function readDaily(){
+  const out = {};
+  document.querySelectorAll("#dTable input").forEach(inp => {
+    const v = Math.max(0, parseInt(inp.value,10) || 0);
+    (out[inp.dataset.id] ||= [0,0])[inp.dataset.k==="d"?0:1] += v;
+  });
+  return out;
+}
+function openDaily(){
+  openId = null;
+  const rows = LAYOUT.map(b => {
+    const ids = b.tanks.filter(x=>x.id && tankInfo(x.id).status!=="empty").map(x=>x.id).sort();
+    if(!ids.length) return "";
+    return `<tr class="bh"><td colspan="4">${esc(BLD_NAME[lang](b.id))}</td></tr>` + ids.map(id => { const d = tankInfo(id); return `<tr>
+      <td><b>${id}</b>${d.hospital?" 🏥":""}</td><td class="muted">${fmt(d.count)}</td>
+      <td><input type="number" inputmode="numeric" min="0" placeholder="0" data-id="${id}" data-k="d"></td>
+      <td><input type="number" inputmode="numeric" min="0" placeholder="0" data-id="${id}" data-k="m"></td></tr>`; }).join("");
+  }).join("");
+  $("#sheet").innerHTML = `<div class="grab"></div>
+    <div class="shead"><h2>${t("dailyTitle")}</h2><button class="x" data-act="close">✕</button></div>
+    <div class="sec" style="border:0;margin-top:4px;padding-top:4px"><label>${t("date")}</label><input id="dDate" type="date" value="${today()}" style="width:auto"></div>
+    <p class="muted">${t("dailyHint")}</p>
+    <table class="dtab" id="dTable"><colgroup><col style="width:18%"><col style="width:20%"><col><col></colgroup>
+      <thead><tr><th>${t("tank")}</th><th>${t("cur")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("rMedicine")}</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="dsum"><div class="nums">
+      <div><b class="d-neg" id="dD">0</b><span>${t("rDied")}</span></div><div><b class="d-neg" id="dM">0</b><span>${t("rMedicine")}</span></div>
+      <div><b id="dL">0</b><span>${t("totLoss")}</span></div><div><b id="dN">0</b><span>${t("newTotal")}</span></div></div>
+      <button class="btn red block" id="dSave">${t("dSave")}</button></div>`;
+  document.body.classList.add("sheet-open");
+  const update = () => {
+    const e = readDaily(); let D=0, M=0;
+    document.querySelectorAll("#dTable input").forEach(inp => { const a=e[inp.dataset.id]; inp.classList.toggle("bad", a[0]+a[1] > tankInfo(inp.dataset.id).count); });
+    Object.values(e).forEach(a => { D+=a[0]; M+=a[1]; });
+    const total = Object.values(data.tanks).reduce((a,x)=>a+(x.status==="empty"?0:x.count),0);
+    $("#dD").textContent = fmt(D); $("#dM").textContent = fmt(M); $("#dL").textContent = fmt(D+M); $("#dN").textContent = fmt(total-D-M);
+  };
+  $("#dTable").addEventListener("input", update); update();
+  $("#dSave").onclick = async () => {
+    const date = $("#dDate").value || today();
+    const e = Object.fromEntries(Object.entries(readDaily()).filter(([,a])=>a[0]+a[1]>0));
+    if(!Object.keys(e).length) return toast(t("invalid"), true);
+    if(document.querySelector("#dTable input.bad")) return toast(t("tooMany"), true);
+    let D=0, M=0; Object.values(e).forEach(a=>{ D+=a[0]; M+=a[1]; });
+    const mut = f => {
+      const now = new Date().toISOString(); f.log ||= [];
+      for(const [id,[dd,mm]] of Object.entries(e)){
+        const x = f.tanks[id]; const from = x.count; x.count = Math.max(0, from-dd-mm); if(x.count===0) x.status = "empty";
+        f.log.push({t:now, tank:id, action:"Daily", date, from, to:x.count, died:dd, med:mm});
+      }
+      f.daily ||= {}; const r = (f.daily[date] ||= {died:0, med:0});
+      r.died += D; r.med += M;
+      r.total = Object.values(f.tanks).reduce((a,x)=>a+(x.status==="empty"?0:x.count),0);
+    };
+    busy(true);
+    try{ data = await commit(mut, `Daily ${date}: died ${D}, medicine ${M}`); toast(t("saved")); closeSheet(); render(); }
+    catch(err){ toast(t("err")+": "+err.message, true); }
+    finally{ busy(false); }
+  };
+}
+
+/* ===================== ADMIN SETUP (GitHub connection) ===================== */
+function openSetup(first){
+  openId = null;
+  const c = cfg();
+  $("#sheet").innerHTML = `<div class="grab"></div>
+    <div class="shead"><h2>${t("setupTitle")}</h2><button class="x" data-act="close">✕</button></div>
+    ${first?`<p style="font-weight:600">${t("firstSetup")}</p>`:""}
+    <p class="muted">${t("setupHelp")}</p>
+    <div class="sec"><label>${t("owner")}</label><input id="sOwner" type="text" autocapitalize="off" value="${esc(c.owner)}"></div>
+    <div class="sec"><label>${t("repo")}</label><input id="sRepo" type="text" autocapitalize="off" value="${esc(c.repo)}"></div>
+    <div class="sec"><label>${t("branch")}</label><input id="sBranch" type="text" autocapitalize="off" value="${esc(c.branch)}"></div>
+    <div class="sec"><label>${t("token")}</label><input id="sToken" type="password" autocomplete="off" placeholder="${hasToken()?"••••••••":"github_pat_…"}"></div>
+    <div class="sec"><button class="btn block" id="sSave">${t("saveSetup")}</button>
+    ${hasToken()?`<button class="btn ghost block" style="margin-top:8px" id="sRemove">${t("removeToken")}</button>`:""}</div>`;
+  document.body.classList.add("sheet-open");
+  $("#sSave").onclick = async () => {
+    LSset("ff_owner",$("#sOwner").value.trim()); LSset("ff_repo",$("#sRepo").value.trim());
+    LSset("ff_branch",$("#sBranch").value.trim()||"main");
+    const tok = $("#sToken").value.trim(); if(tok) LSset("ff_token",tok);
+    if(!hasToken()) return toast(t("needToken"), true);
+    busy(true);
+    try{ data = (await ghRead()).data; toast(t("ok")); closeSheet(); render(); }
+    catch(e){ if(tok) LSset("ff_token",null); toast(t("err")+": "+e.message, true); render(); }
+    finally{ busy(false); }
+  };
+  if($("#sRemove")) $("#sRemove").onclick = () => { LSset("ff_token",null); toast("✓"); openSetup(); };
+}
+
+/* ===================== UI helpers & events ===================== */
+let tt; function toast(m, err){ const el=$("#toast"); el.textContent=m; el.className="toast show"+(err?" err":""); clearTimeout(tt); tt=setTimeout(()=>el.className="toast",3200); }
+function busy(on){ $("#busy").classList.toggle("on",on); }
+
+document.addEventListener("click", e => {
+  const tank = e.target.closest(".tank"); if(tank){ openSheet(tank.dataset.id); return; }
+  const a = e.target.closest("[data-act]"); if(a){ act(a.dataset.act); return; }
+  const q = e.target.closest("[data-q]"); if(q){ $("#inReduce").value = q.dataset.q; return; }
+  const f = e.target.closest("[data-f]"); if(f){
+    filter = f.dataset.f; document.querySelectorAll("[data-f]").forEach(c=>c.classList.toggle("on",c===f)); render(); }
+});
+$("#backdrop").onclick = closeSheet;
+document.addEventListener("keydown", e => { if(e.key==="Escape") closeSheet(); });
+$("#adminBtn").onclick = () => isAdmin() ? openSetup() : openLogin();
+$("#adminOff").onclick = () => { LSset("ff_login",null); closeSheet(); render(); };
+$("#dailyBtn").onclick = () => data && openDaily();
+$("#lang").onchange = e => { lang = e.target.value; LSset("ff_lang",lang); render(); };
+$("#refresh").onclick = e => { e.preventDefault(); load(); };
+setInterval(() => { if(!document.hidden && !openId) load(); }, 60000);   // auto refresh every minute
+document.addEventListener("visibilitychange", () => { if(!document.hidden && !openId) load(); });
+
+render(); load();
+</script>
+</body>
+</html>
