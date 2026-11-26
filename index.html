@@ -291,14 +291,14 @@ const T = {
     dailyPanel:"일일 폐사 현황 (최근 7일)",noDaily:"아직 입력이 없습니다",aDaily:"일일 감소",
     hospital:"병원 수조",hospShort:"🏥 병원",mkHosp:"🏥 병원 수조로 지정",unHosp:"병원 수조 해제",labelLbl:"수조 이름표",labelPh:"예: 치어, 선별, 격리…",
     aHosp:"병원 수조 지정",aUnhosp:"병원 수조 해제",aLabel:"이름표",fHosp:"병원",lgHosp:"병원 수조",unknown:"수량 미확인",unknownNote:"물고기는 있지만 마리수를 아직 모릅니다. 세어 본 후 아래에 정확한 수량을 입력하세요.",markUnknown:"🐟 물고기 있음 (수량 미확인)",aUnknown:"물고기 있음 (수량 미확인)",unknownTanks:"수조 수량 미확인",
-    dailyTitle:"일일 폐사 · 투약 기록",diedTotal:"💀 오늘 폐사 (전체 합계)",diedHint:"수조별로 나누지 않고 총 마리수에서만 뺍니다.",
-    medTitle:"💊 투약 → 병원 수조로 이동",medHint:"투약한 물고기는 농장에서 빠지지 않고 병원 수조로 들어갑니다. 원래 수조를 모르면 '모름'을 선택하세요.",
+    dailyTitle:"일일 폐사 · 투약 기록",diedTotal:"💀 오늘 폐사 (전체 합계)",diedHint:"합계만 입력하세요. 총 마리수에서 빼고, 각 수조 마리수 비율대로 자동으로 나눠서 뺍니다.",
+    medTitle:"💊 투약 → 병원 수조로 이동",medHint:"투약한 물고기는 농장에서 빠지지 않고 병원 수조로 들어갑니다. 원래 수조를 모르면 '모름'을 선택하세요 (각 수조에서 비율대로 빠집니다). 총 마리수는 변하지 않습니다.",
     count:"마리수",fromTank:"어느 수조에서",srcUnknown:"모름 (전체에서)",toHosp:"병원 수조",addRow:"+ 줄 추가",
     noHospTank:"병원 수조가 없습니다. 먼저 수조를 눌러 '병원 수조로 지정' 하세요.",movedHosp:"병원 이동",
     resetAdj:"전체 재계수 완료 → 미반영 수량 0으로",confirmReset:"모든 수조를 다시 세어 입력했습니까? 수조에서 빼지 않은 폐사·이동 수량을 0으로 만듭니다.",
     totNote:"총 마리수 = 수조 합계 {a} − 수조에서 빼지 않은 폐사·이동 {b}",
     reportTitle:"📊 일일 폐사 · 투약 보고",todayDied:"오늘 폐사",monthDied:"이번 달 폐사",allDied:"누적 폐사",inHosp:"병원 수조 마리수",
-    colMed:"투약→병원",colHosp:"병원 수조",farmAll:"전체",aDied:"폐사 (전체)",aMedicine:"투약 → 병원",aMedOut:"투약 → 병원 이동",aReset:"미반영 수량 초기화",delete:"삭제",deleteHint:"잘못 입력한 기록을 삭제하면 폐사 수는 총 마리수에 다시 더해지고, 투약 이동은 원래 수조로 돌아갑니다.",confirmDelete:"이 기록을 삭제할까요?",aDelEntry:"일일 기록 삭제",outdated:"새 버전이 있습니다. 페이지를 새로 불러옵니다…"},
+    colMed:"투약→병원",colHosp:"병원 수조",farmAll:"전체",aDied:"폐사 (전체)",aMedicine:"투약 → 병원",aMedOut:"투약 → 병원 이동",aReset:"미반영 수량 초기화",delete:"삭제",deleteHint:"잘못 입력한 기록을 삭제하면 폐사 수는 총 마리수에 다시 더해지고, 투약 이동은 원래 수조로 돌아갑니다. (재계수 완료 전 기록은 기록만 삭제되고 수량은 바뀌지 않습니다.)",settled:"재계수 완료",confirmDelete:"이 기록을 삭제할까요?",aDelEntry:"일일 기록 삭제",aFix:"수량 정정",outdated:"새 버전이 있습니다. 페이지를 새로 불러옵니다…"},
   en:{subtitle:"Tank map · Stock status",admin:"Admin",totalFish:"Total fish",activeTanks:"Stocked tanks",readyTanks:"Delivery ready",emptyTanks:"Empty tanks",
     lastUpdate:"Last update",refresh:"Refresh",fAll:"All",fReady:"Ready",fEmpty:"Empty",lgActive:"Stocked",lgReady:"Delivery ready",lgEmpty:"Empty",
     history:"Change history",noHistory:"No changes yet",origPlan:"Original floor plan photo",origPlanNote:"Data entered from the handwritten sheet of 2026-11-13.",
@@ -319,14 +319,14 @@ const T = {
     dailyPanel:"Daily losses (last 7 days)",noDaily:"No entries yet",aDaily:"Daily loss",
     hospital:"Hospital tank",hospShort:"🏥 Hosp.",mkHosp:"🏥 Make hospital tank",unHosp:"Remove hospital label",labelLbl:"Tank label",labelPh:"e.g. small fish, sorted…",
     aHosp:"Hospital tank",aUnhosp:"Hospital removed",aLabel:"Label",fHosp:"Hospital",lgHosp:"Hospital tank",unknown:"Count unknown",unknownNote:"Fish are in this tank but the count is not known yet. After counting, enter the exact number below.",markUnknown:"🐟 Has fish (count unknown)",aUnknown:"Has fish (count unknown)",unknownTanks:"tanks count unknown",
-    dailyTitle:"Daily deaths & medicine",diedTotal:"💀 Today's deaths (farm total)",diedHint:"Taken off the farm total only, not off a tank.",
-    medTitle:"💊 Medicine → moved to hospital tank",medHint:"Medicine fish stay on the farm and go into the hospital tank. If you don't know the source tank, pick 'Unknown'.",
+    dailyTitle:"Daily deaths & medicine",diedTotal:"💀 Today's deaths (farm total)",diedHint:"Enter the total only. It comes off the farm total and is spread over the tanks by their size automatically.",
+    medTitle:"💊 Medicine → moved to hospital tank",medHint:"Medicine fish stay on the farm and go into the hospital tank. If you don't know the source tank, pick 'Unknown' (taken from all tanks by size). The farm total does not change.",
     count:"Fish",fromTank:"From tank",srcUnknown:"Unknown (from total)",toHosp:"Hospital tank",addRow:"+ Add row",
     noHospTank:"No hospital tank yet. Tap a tank and choose 'Make hospital tank' first.",movedHosp:"To hospital",
     resetAdj:"Full recount done → reset unassigned amount",confirmReset:"Did you recount every tank? This sets the deaths/moves not taken off a tank back to 0.",
     totNote:"Total = tanks {a} − deaths/moves not taken off a tank {b}",
     reportTitle:"📊 Daily deaths & medicine report",todayDied:"Died today",monthDied:"Died this month",allDied:"Died (all time)",inHosp:"In hospital tanks",
-    colMed:"Medicine→hosp.",colHosp:"Hospital tank",farmAll:"Farm",aDied:"Deaths (farm total)",aMedicine:"Medicine → hospital",aMedOut:"Medicine → moved out",aReset:"Unassigned amount reset",delete:"Delete",deleteHint:"Deleting a wrong entry adds the deaths back to the total and moves the medicine fish back to where they came from.",confirmDelete:"Delete this entry?",aDelEntry:"Daily entry deleted",outdated:"A new version is available. Reloading the page…"},
+    colMed:"Medicine→hosp.",colHosp:"Hospital tank",farmAll:"Farm",aDied:"Deaths (farm total)",aMedicine:"Medicine → hospital",aMedOut:"Medicine → moved out",aReset:"Unassigned amount reset",delete:"Delete",deleteHint:"Deleting a wrong entry adds the deaths back to the total and moves the medicine fish back to where they came from. (Entries from before a full recount are only removed from the list; the numbers do not change.)",settled:"recounted",confirmDelete:"Delete this entry?",aDelEntry:"Daily entry deleted",aFix:"Correction",outdated:"A new version is available. Reloading the page…"},
 };
 const BLD_NAME = {ko:id=>id+"동", en:id=>"Building "+id};
 
@@ -378,7 +378,7 @@ async function ghRead(){
 }
 // Bump APP_VERSION whenever the saving rules change. A phone that still shows an older cached
 // copy of this page is then sent to the new page instead of saving with the old rules.
-const APP_VERSION = 3;
+const APP_VERSION = 5;
 function reloadIfOutdated(d){
   const v = d && d.appVersion || 0;
   if(v <= APP_VERSION) return false;
@@ -437,6 +437,24 @@ function fishSvg(x, d, max){
     return `<svg class="fish" viewBox="0 0 46 26" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%;width:min(${w.toFixed(0)}px,36%);transform:rotate(${rot}deg) scaleX(${flip})"><use href="#fl"/></svg>`;
   }).join("");
 }
+// Spread n fish over the normal stocked tanks in proportion to their size (largest-remainder rounding).
+// Used for farm-wide deaths and for medicine fish whose source tank is unknown. Returns {tank: amount}.
+function allocate(f, n){
+  const ids = Object.keys(f.tanks).filter(id => { const x = f.tanks[id]; return x.status!=="empty" && !x.hospital && !x.unknown && x.count>0; });
+  const sum = ids.reduce((a,id)=>a+f.tanks[id].count, 0);
+  if(!sum || !n) return null;
+  n = Math.min(n, sum);
+  const parts = ids.map(id => ({id, v:n*f.tanks[id].count/sum}));
+  const out = {}; let used = 0;
+  parts.forEach(q => { out[q.id] = Math.floor(q.v); used += out[q.id]; });
+  parts.sort((a,b)=>(b.v%1)-(a.v%1)).slice(0, n-used).forEach(q => out[q.id]++);
+  for(const id of Object.keys(out)){
+    if(!out[id]){ delete out[id]; continue; }
+    const x = f.tanks[id]; x.count -= out[id]; if(x.count===0) x.status = "empty";
+  }
+  return out;
+}
+function unallocate(f, out){ for(const id in out){ const x = f.tanks[id]; x.count += out[id]; if(x.status==="empty") x.status = "active"; } }
 function farmTotal(f){ return Object.values(f.tanks).reduce((a,x)=>a+(x.status==="empty"?0:x.count),0) + (f.poolAdjust||0); }
 function cntText(d){ return d.status==="empty" ? null : d.unknown ? (d.count ? fmt(d.count)+"+?" : "?") : fmt(d.count); }
 function tankInfo(id){ return (data.tanks[id] ||= {count:0,status:"empty",note:""}); }
@@ -550,8 +568,11 @@ function openSheet(id, refresh){
           <button class="btn green" data-act="harvest">${t("harvest")}</button>
         </div>
         <div class="sec"><label>${t("add")}</label><div class="row"><input id="inAdd" type="number" inputmode="numeric" min="1" placeholder="0"><button class="btn" data-act="add">${t("addBtn")}</button></div></div>
-        <div class="sec"><label>${t("move")}</label><div class="row"><input id="inMove" type="number" inputmode="numeric" min="1" placeholder="0">
-          <select id="inTo">${others.map(o=>`<option>${o}</option>`).join("")}</select><button class="btn ghost" data-act="move">${t("moveBtn")}</button></div></div>
+        <div class="sec"><label>${t("move")}</label>
+          <div class="mrow" style="grid-template-columns:1fr 18px 1fr;margin-top:0"><input id="inMove" type="number" inputmode="numeric" min="1" placeholder="0">
+          <span style="text-align:center;font-weight:700">→</span>
+          <select id="inTo">${others.map(o=>`<option value="${o}">${tankInfo(o).hospital?"🏥 ":""}${o}</option>`).join("")}</select></div>
+          <button class="btn block" style="margin-top:8px" data-act="move">↔ ${t("moveBtn")}</button></div>
         <div class="sec"><label>${t("setExact")}</label><div class="row"><input id="inSet" type="number" inputmode="numeric" min="0" value="${d.count}"><button class="btn ghost" data-act="set">${t("setBtn")}</button></div></div>`;
     }
     h += `<div class="sec"><label>${t("labelLbl")}</label>
@@ -685,7 +706,7 @@ function openDaily(){
       <div><b class="d-neg" id="dD">0</b><span>💀 ${t("rDied")}</span></div><div><b id="dM">0</b><span>🏥 ${t("movedHosp")}</span></div>
       <div><b id="dN">0</b><span>${t("newTotal")}</span></div></div>
       <button class="btn red block" id="dSave">${t("dSave")}</button>
-      ${adj ? `<button class="btn ghost block" style="margin-top:8px;font-size:13px" id="dReset">${t("resetAdj")} (${fmt(adj)})</button>` : ""}</div>`;
+</div>`;
   document.body.classList.add("sheet-open");
   const update = () => {
     const D = Math.max(0, parseInt($("#dDied").value,10)||0), meds = readMeds(), used = {};
@@ -704,7 +725,8 @@ function openDaily(){
   if($("#dReset")) $("#dReset").onclick = async () => {
     if(!confirm(t("confirmReset"))) return;
     busy(true);
-    try{ data = await commit(f => { (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:"Reset", note:String(f.poolAdjust||0)}); f.poolAdjust = 0; }, "Reset unassigned deaths after recount");
+    try{ data = await commit(f => { (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:"Reset", note:String(f.poolAdjust||0)}); f.poolAdjust = 0;
+      for(const r of Object.values(f.daily||{})){ r.settled = true; (r.entries||[]).forEach(e=>e.settled = true); } }, "Reset unassigned deaths after recount");
       toast(t("saved")); closeSheet(); render(); }
     catch(err){ toast(t("err")+": "+err.message, true); }
     finally{ busy(false); }
@@ -719,14 +741,19 @@ function openDaily(){
       const now = new Date().toISOString(); f.log ||= []; f.daily ||= {};
       const r = (f.daily[date] ||= {died:0, med:0});
       const eid = Date.now().toString(36);
-      (r.entries ||= []).push({id:eid, t:now, died:D, meds});
-      if(D){ f.poolAdjust = (f.poolAdjust||0) - D; r.died += D; f.log.push({t:now, tank:"ALL", action:"Died", date, died:D}); }
+      const entry = {id:eid, t:now, died:D, meds};
+      (r.entries ||= []).push(entry);
+      if(D){
+        entry.alloc = allocate(f, D);
+        if(!entry.alloc) f.poolAdjust = (f.poolAdjust||0) - D;
+        r.died += D; f.log.push({t:now, tank:"ALL", action:"Died", date, died:D});
+      }
       for(const m of meds){
         const h = f.tanks[m.to]; const hf = h.count; h.count += m.n; if(h.status==="empty") h.status = "active";
         if(m.from){
           const sTank = f.tanks[m.from]; const sf = sTank.count; sTank.count = Math.max(0, sf-m.n); if(sTank.count===0) sTank.status = "empty";
           f.log.push({t:now, tank:m.from, action:"MedOut", other:m.to, date, from:sf, to:sTank.count});
-        } else f.poolAdjust = (f.poolAdjust||0) - m.n;
+        } else { m.alloc = allocate(f, m.n); if(!m.alloc) f.poolAdjust = (f.poolAdjust||0) - m.n; }
         f.log.push({t:now, tank:m.to, action:"Medicine", other:m.from, date, from:hf, to:h.count, med:m.n});
         r.med += m.n; (r.medTo ||= {})[m.to] = (r.medTo[m.to]||0) + m.n;
       }
@@ -746,7 +773,7 @@ function openDay(date){
   const r = data.daily?.[date]; if(!r) return;
   const rows = dayEntries(r).map(e => `<li style="align-items:center"><span class="when">${e.t?fmtDate(e.t).slice(11):""}</span>
     <span class="what">${e.died?`💀 <b class="d-neg">${fmt(e.died)}</b> `:""}${(e.meds||[]).map(m=>`💊 ${fmt(m.n)} ${m.from?m.from:t("srcUnknown")} → 🏥 ${m.to}`).join(" · ")}</span>
-    <button class="btn red" style="padding:6px 10px" data-del="${e.id}" data-date="${date}">${t("delete")}</button></li>`).join("");
+    ${e.settled?`<span class="muted" style="font-size:11px">${t("settled")}</span>`:""}<button class="btn red" style="padding:6px 10px" data-del="${e.id}" data-date="${date}">${t("delete")}</button></li>`).join("");
   $("#sheet").innerHTML = `<div class="grab"></div>
     <div class="shead"><h2>${date}</h2><button class="x" data-act="close">✕</button></div>
     <p class="muted">${t("deleteHint")}</p><ul class="log">${rows}</ul>`;
@@ -758,23 +785,26 @@ async function delEntry(date, id){
     const r = f.daily?.[date]; if(!r) throw new Error("not found");
     let e;
     if(r.entries && r.entries.length){ const i = r.entries.findIndex(x=>x.id===id); if(i<0) throw new Error("not found"); e = r.entries.splice(i,1)[0]; }
-    else e = {died:r.died||0, meds:[]};
+    else e = {died:r.died||0, meds:[], settled:!!r.settled};
+    const undo = !e.settled;   // after a full recount the tank numbers already include this entry
     // undo deaths: give them back to the farm total
-    f.poolAdjust = (f.poolAdjust||0) + (e.died||0);
+    if(undo && e.died){ if(e.alloc) unallocate(f, e.alloc); else f.poolAdjust = (f.poolAdjust||0) + e.died; }
     // undo medicine moves: take them out of the hospital tank, back to where they came from
     let M = 0;
     for(const m of e.meds||[]){
-      const h = f.tanks[m.to]; h.count = Math.max(0, h.count - m.n); if(h.count===0 && !h.unknown) h.status = "empty";
-      if(m.from){ const src = f.tanks[m.from]; src.count += m.n; if(src.status==="empty") src.status = "active"; }
-      else f.poolAdjust += m.n;
       if(r.medTo) r.medTo[m.to] = (r.medTo[m.to]||0) - m.n;
       M += m.n;
+      if(!undo) continue;
+      const h = f.tanks[m.to]; h.count = Math.max(0, h.count - m.n); if(h.count===0 && !h.unknown) h.status = "empty";
+      if(m.from){ const src = f.tanks[m.from]; src.count += m.n; if(src.status==="empty") src.status = "active"; }
+      else if(m.alloc) unallocate(f, m.alloc);
+      else f.poolAdjust = (f.poolAdjust||0) + m.n;
     }
     r.died = (r.died||0) - (e.died||0); r.med = (r.med||0) - M;
-    for(const [d, x] of Object.entries(f.daily)) if(d >= date && x.total != null) x.total += (e.died||0);
+    for(const [d, x] of Object.entries(f.daily)) if(undo && d >= date && x.total != null) x.total += (e.died||0);
     if(r.died<=0 && r.med<=0) delete f.daily[date];
     if(!f.poolAdjust) delete f.poolAdjust;
-    (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:"DelEntry", date, died:e.died||0, med:M});
+    (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:"DelEntry", date, died:e.died||0, med:M, note:undo?"":"settled"});
   };
   busy(true);
   try{ data = await commit(mut, `Delete daily entry ${date}`); toast(t("saved")); closeSheet(); render(); }

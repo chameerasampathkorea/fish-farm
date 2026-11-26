@@ -3,17 +3,17 @@
   "updated": "2026-11-26T11:02:59.887Z",
   "tanks": {
     "111": {
-      "count": 1420,
+      "count": 1415,
       "status": "active",
       "note": ""
     },
     "112": {
-      "count": 1570,
+      "count": 1565,
       "status": "active",
       "note": ""
     },
     "113": {
-      "count": 1560,
+      "count": 1555,
       "status": "active",
       "note": ""
     },
@@ -25,37 +25,37 @@
       "unknown": true
     },
     "121": {
-      "count": 1560,
+      "count": 1555,
       "status": "active",
       "note": ""
     },
     "122": {
-      "count": 1480,
+      "count": 1475,
       "status": "active",
       "note": ""
     },
     "123": {
-      "count": 1510,
+      "count": 1505,
       "status": "active",
       "note": ""
     },
     "124": {
-      "count": 1420,
+      "count": 1415,
       "status": "active",
       "note": ""
     },
     "125": {
-      "count": 2100,
+      "count": 2093,
       "status": "active",
       "note": ""
     },
     "131": {
-      "count": 1400,
+      "count": 1396,
       "status": "active",
       "note": ""
     },
     "132": {
-      "count": 1320,
+      "count": 1316,
       "status": "active",
       "note": ""
     },
@@ -65,32 +65,32 @@
       "note": ""
     },
     "134": {
-      "count": 1480,
+      "count": 1475,
       "status": "active",
       "note": ""
     },
     "135": {
-      "count": 1400,
+      "count": 1396,
       "status": "active",
       "note": ""
     },
     "136": {
-      "count": 1550,
+      "count": 1545,
       "status": "active",
       "note": ""
     },
     "137": {
-      "count": 1570,
+      "count": 1565,
       "status": "active",
       "note": ""
     },
     "211": {
-      "count": 1320,
+      "count": 1316,
       "status": "active",
       "note": ""
     },
     "212": {
-      "count": 1440,
+      "count": 1435,
       "status": "active",
       "note": ""
     },
@@ -103,47 +103,47 @@
       "unknown": true
     },
     "214": {
-      "count": 1680,
+      "count": 1675,
       "status": "active",
       "note": ""
     },
     "221": {
-      "count": 1230,
+      "count": 1226,
       "status": "active",
       "note": ""
     },
     "222": {
-      "count": 1340,
+      "count": 1336,
       "status": "active",
       "note": ""
     },
     "223": {
-      "count": 1330,
+      "count": 1326,
       "status": "active",
       "note": ""
     },
     "224": {
-      "count": 1540,
+      "count": 1535,
       "status": "active",
       "note": ""
     },
     "311": {
-      "count": 1360,
+      "count": 1356,
       "status": "active",
       "note": ""
     },
     "312": {
-      "count": 1300,
+      "count": 1296,
       "status": "active",
       "note": ""
     },
     "313": {
-      "count": 1470,
+      "count": 1465,
       "status": "active",
       "note": ""
     },
     "314": {
-      "count": 1240,
+      "count": 1236,
       "status": "active",
       "note": ""
     },
@@ -153,17 +153,17 @@
       "note": ""
     },
     "322": {
-      "count": 1280,
+      "count": 1276,
       "status": "active",
       "note": ""
     },
     "323": {
-      "count": 1380,
+      "count": 1376,
       "status": "active",
       "note": ""
     },
     "324": {
-      "count": 1340,
+      "count": 1336,
       "status": "active",
       "note": ""
     }
@@ -296,6 +296,12 @@
       "from": 0,
       "to": 129,
       "med": 129
+    },
+    {
+      "t": "2026-11-26T11:30:00.000Z",
+      "tank": "ALL",
+      "action": "Fix",
+      "note": "Reset + delete counted 41 twice; total back to 40,590"
     }
   ],
   "daily": {
@@ -311,7 +317,37 @@
             {
               "n": 129,
               "from": "",
-              "to": "213"
+              "to": "213",
+              "alloc": {
+                "111": 5,
+                "112": 5,
+                "113": 5,
+                "121": 5,
+                "122": 5,
+                "123": 5,
+                "124": 5,
+                "125": 7,
+                "131": 4,
+                "132": 4,
+                "134": 5,
+                "135": 4,
+                "136": 5,
+                "137": 5,
+                "211": 4,
+                "212": 5,
+                "214": 5,
+                "221": 4,
+                "222": 4,
+                "223": 4,
+                "224": 5,
+                "311": 4,
+                "312": 4,
+                "313": 5,
+                "314": 4,
+                "322": 4,
+                "323": 4,
+                "324": 4
+              }
             }
           ]
         }
@@ -319,9 +355,8 @@
       "medTo": {
         "213": 129
       },
-      "total": 40631
+      "total": 40590
     }
   },
-  "poolAdjust": -88,
-  "appVersion": 3
+  "appVersion": 5
 }
