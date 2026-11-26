@@ -161,6 +161,8 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .dsum .nums b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
 .dsum .nums span{font-size:11px;color:var(--muted)}
 .dpanel td,.dpanel th{text-align:right}.dpanel td:first-child,.dpanel th:first-child{text-align:left}
+#dailyList{overflow-x:auto}
+#dailyList th{white-space:nowrap;font-size:11.5px}
 .rtiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
 @media (max-width:520px){ .rtiles{grid-template-columns:repeat(2,1fr)} }
 .rtile{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
@@ -296,7 +298,7 @@ const T = {
     resetAdj:"전체 재계수 완료 → 미반영 수량 0으로",confirmReset:"모든 수조를 다시 세어 입력했습니까? 수조에서 빼지 않은 폐사·이동 수량을 0으로 만듭니다.",
     totNote:"총 마리수 = 수조 합계 {a} − 수조에서 빼지 않은 폐사·이동 {b}",
     reportTitle:"📊 일일 폐사 · 투약 보고",todayDied:"오늘 폐사",monthDied:"이번 달 폐사",allDied:"누적 폐사",inHosp:"병원 수조 마리수",
-    colMed:"투약→병원",colHosp:"병원 수조",farmAll:"전체",aDied:"폐사 (전체)",aMedicine:"투약 → 병원",aMedOut:"투약 → 병원 이동",aReset:"미반영 수량 초기화"},
+    colMed:"투약→병원",colHosp:"병원 수조",farmAll:"전체",aDied:"폐사 (전체)",aMedicine:"투약 → 병원",aMedOut:"투약 → 병원 이동",aReset:"미반영 수량 초기화",delete:"삭제",deleteHint:"잘못 입력한 기록을 삭제하면 폐사 수는 총 마리수에 다시 더해지고, 투약 이동은 원래 수조로 돌아갑니다.",confirmDelete:"이 기록을 삭제할까요?",aDelEntry:"일일 기록 삭제",outdated:"새 버전이 있습니다. 페이지를 새로 불러옵니다…"},
   en:{subtitle:"Tank map · Stock status",admin:"Admin",totalFish:"Total fish",activeTanks:"Stocked tanks",readyTanks:"Delivery ready",emptyTanks:"Empty tanks",
     lastUpdate:"Last update",refresh:"Refresh",fAll:"All",fReady:"Ready",fEmpty:"Empty",lgActive:"Stocked",lgReady:"Delivery ready",lgEmpty:"Empty",
     history:"Change history",noHistory:"No changes yet",origPlan:"Original floor plan photo",origPlanNote:"Data entered from the handwritten sheet of 2026-11-13.",
@@ -324,7 +326,7 @@ const T = {
     resetAdj:"Full recount done → reset unassigned amount",confirmReset:"Did you recount every tank? This sets the deaths/moves not taken off a tank back to 0.",
     totNote:"Total = tanks {a} − deaths/moves not taken off a tank {b}",
     reportTitle:"📊 Daily deaths & medicine report",todayDied:"Died today",monthDied:"Died this month",allDied:"Died (all time)",inHosp:"In hospital tanks",
-    colMed:"Medicine→hosp.",colHosp:"Hospital tank",farmAll:"Farm",aDied:"Deaths (farm total)",aMedicine:"Medicine → hospital",aMedOut:"Medicine → moved out",aReset:"Unassigned amount reset"},
+    colMed:"Medicine→hosp.",colHosp:"Hospital tank",farmAll:"Farm",aDied:"Deaths (farm total)",aMedicine:"Medicine → hospital",aMedOut:"Medicine → moved out",aReset:"Unassigned amount reset",delete:"Delete",deleteHint:"Deleting a wrong entry adds the deaths back to the total and moves the medicine fish back to where they came from.",confirmDelete:"Delete this entry?",aDelEntry:"Daily entry deleted",outdated:"A new version is available. Reloading the page…"},
 };
 const BLD_NAME = {ko:id=>id+"동", en:id=>"Building "+id};
 
@@ -374,12 +376,23 @@ async function ghRead(){
   const j = await gh(`contents/data.json?ref=${encodeURIComponent(c.branch)}&t=${Date.now()}`);
   return { sha:j.sha, data:JSON.parse(b64dec(j.content)) };
 }
+// Bump APP_VERSION whenever the saving rules change. A phone that still shows an older cached
+// copy of this page is then sent to the new page instead of saving with the old rules.
+const APP_VERSION = 3;
+function reloadIfOutdated(d){
+  const v = d && d.appVersion || 0;
+  if(v <= APP_VERSION) return false;
+  if(new URLSearchParams(location.search).get("v") !== String(v)) location.replace(location.pathname + "?v=" + v);
+  return true;
+}
 // Apply a change to the LATEST file on GitHub, then commit. Retries once on conflict.
 async function commit(mutator, message){
   if(!hasToken()){ openSetup(true); throw new Error(t("needToken")); }
   for(let attempt=0; attempt<3; attempt++){
     const { sha, data:fresh } = await ghRead();
+    if(reloadIfOutdated(fresh)) throw new Error(t("outdated"));
     mutator(fresh);
+    fresh.appVersion = APP_VERSION;
     fresh.updated = new Date().toISOString();
     fresh.log = (fresh.log||[]).slice(-300);
     try{
@@ -403,6 +416,7 @@ async function load(){
     if(!data){ const r = await fetch("data.json?t="+Date.now(), {cache:"no-store"}); data = await r.json(); }
     toast(t("err")+": "+e.message, true);
   }
+  if(reloadIfOutdated(data)) toast(t("outdated"), true);
   render();
 }
 
@@ -484,8 +498,8 @@ function render(){
       <div class="rtile"><b class="d-neg">${fmt(dMonth)}</b><span>💀 ${t("monthDied")}</span></div>
       <div class="rtile"><b>${fmt(dAll)}</b><span>💀 ${t("allDied")}</span></div>
       <div class="rtile"><b>${hospTxt}</b><span>🏥 ${t("inHosp")}</span></div></div>` +
-    (daysAll.length ? `<table class="dtab"><thead><tr><th>${t("date")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("colMed")}</th><th>${t("colHosp")}</th><th>${t("totalFish")}</th></tr></thead><tbody>${
-      daysAll.slice(0,31).map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td><td class="d-neg">${fmt(r.died)}</td><td>${fmt(r.med)}</td><td class="muted">${Object.keys(r.medTo||{}).join(", ")||"–"}</td><td><b>${r.total!=null?fmt(r.total):"–"}</b></td></tr>`).join("")
+    (daysAll.length ? `<table class="dtab"><thead><tr><th>${t("date")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("colMed")}</th><th>${t("colHosp")}</th><th>${t("totalFish")}</th>${isAdmin()?"<th></th>":""}</tr></thead><tbody>${
+      daysAll.slice(0,31).map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td><td class="d-neg">${fmt(r.died)}</td><td>${fmt(r.med)}</td><td class="muted">${Object.keys(r.medTo||{}).filter(k=>r.medTo[k]>0).join(", ")||"–"}</td><td><b>${r.total!=null?fmt(r.total):"–"}</b></td>${isAdmin()?`<td><button class="btn ghost" style="padding:4px 8px" data-day="${d}" aria-label="${t("delete")}">🗑</button></td>`:""}</tr>`).join("")
     }</tbody></table>` : `<p class="muted">${t("noDaily")}</p>`);
 
   const log = (data.log||[]).slice().reverse().slice(0,40);
@@ -704,6 +718,8 @@ function openDaily(){
     const mut = f => {
       const now = new Date().toISOString(); f.log ||= []; f.daily ||= {};
       const r = (f.daily[date] ||= {died:0, med:0});
+      const eid = Date.now().toString(36);
+      (r.entries ||= []).push({id:eid, t:now, died:D, meds});
       if(D){ f.poolAdjust = (f.poolAdjust||0) - D; r.died += D; f.log.push({t:now, tank:"ALL", action:"Died", date, died:D}); }
       for(const m of meds){
         const h = f.tanks[m.to]; const hf = h.count; h.count += m.n; if(h.status==="empty") h.status = "active";
@@ -721,6 +737,49 @@ function openDaily(){
     catch(err){ toast(t("err")+": "+err.message, true); }
     finally{ busy(false); }
   };
+}
+
+/* ===================== DELETE A DAILY ENTRY ===================== */
+function dayEntries(r){ return r.entries && r.entries.length ? r.entries : [{id:"*", died:r.died||0, meds:[]}]; }
+function openDay(date){
+  openId = null;
+  const r = data.daily?.[date]; if(!r) return;
+  const rows = dayEntries(r).map(e => `<li style="align-items:center"><span class="when">${e.t?fmtDate(e.t).slice(11):""}</span>
+    <span class="what">${e.died?`💀 <b class="d-neg">${fmt(e.died)}</b> `:""}${(e.meds||[]).map(m=>`💊 ${fmt(m.n)} ${m.from?m.from:t("srcUnknown")} → 🏥 ${m.to}`).join(" · ")}</span>
+    <button class="btn red" style="padding:6px 10px" data-del="${e.id}" data-date="${date}">${t("delete")}</button></li>`).join("");
+  $("#sheet").innerHTML = `<div class="grab"></div>
+    <div class="shead"><h2>${date}</h2><button class="x" data-act="close">✕</button></div>
+    <p class="muted">${t("deleteHint")}</p><ul class="log">${rows}</ul>`;
+  document.body.classList.add("sheet-open");
+}
+async function delEntry(date, id){
+  if(!confirm(date + " — " + t("confirmDelete"))) return;
+  const mut = f => {
+    const r = f.daily?.[date]; if(!r) throw new Error("not found");
+    let e;
+    if(r.entries && r.entries.length){ const i = r.entries.findIndex(x=>x.id===id); if(i<0) throw new Error("not found"); e = r.entries.splice(i,1)[0]; }
+    else e = {died:r.died||0, meds:[]};
+    // undo deaths: give them back to the farm total
+    f.poolAdjust = (f.poolAdjust||0) + (e.died||0);
+    // undo medicine moves: take them out of the hospital tank, back to where they came from
+    let M = 0;
+    for(const m of e.meds||[]){
+      const h = f.tanks[m.to]; h.count = Math.max(0, h.count - m.n); if(h.count===0 && !h.unknown) h.status = "empty";
+      if(m.from){ const src = f.tanks[m.from]; src.count += m.n; if(src.status==="empty") src.status = "active"; }
+      else f.poolAdjust += m.n;
+      if(r.medTo) r.medTo[m.to] = (r.medTo[m.to]||0) - m.n;
+      M += m.n;
+    }
+    r.died = (r.died||0) - (e.died||0); r.med = (r.med||0) - M;
+    for(const [d, x] of Object.entries(f.daily)) if(d >= date && x.total != null) x.total += (e.died||0);
+    if(r.died<=0 && r.med<=0) delete f.daily[date];
+    if(!f.poolAdjust) delete f.poolAdjust;
+    (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:"DelEntry", date, died:e.died||0, med:M});
+  };
+  busy(true);
+  try{ data = await commit(mut, `Delete daily entry ${date}`); toast(t("saved")); closeSheet(); render(); }
+  catch(err){ toast(t("err")+": "+err.message, true); }
+  finally{ busy(false); }
 }
 
 /* ===================== ADMIN SETUP (GitHub connection) ===================== */
@@ -758,6 +817,8 @@ function busy(on){ $("#busy").classList.toggle("on",on); }
 document.addEventListener("click", e => {
   const tank = e.target.closest(".tank"); if(tank){ openSheet(tank.dataset.id); return; }
   const a = e.target.closest("[data-act]"); if(a){ act(a.dataset.act); return; }
+  const day = e.target.closest("[data-day]"); if(day){ openDay(day.dataset.day); return; }
+  const del = e.target.closest("[data-del]"); if(del){ delEntry(del.dataset.date, del.dataset.del); return; }
   const q = e.target.closest("[data-q]"); if(q){ $("#inReduce").value = q.dataset.q; return; }
   const f = e.target.closest("[data-f]"); if(f){
     filter = f.dataset.f; document.querySelectorAll("[data-f]").forEach(c=>c.classList.toggle("on",c===f)); render(); }

@@ -268,18 +268,27 @@
     },
     {
       "t": "2026-11-26T10:55:31.668Z",
-      "tank": "213",
-      "action": "Daily",
+      "tank": "ALL",
+      "action": "Died",
       "date": "2026-11-26",
-      "died": 41,
-      "med": 0
+      "died": 41
     }
   ],
   "daily": {
     "2026-11-26": {
       "died": 41,
       "med": 0,
-      "total": 40590
+      "total": 40549,
+      "entries": [
+        {
+          "id": "fix1",
+          "t": "2026-11-26T10:55:31.668Z",
+          "died": 41,
+          "meds": []
+        }
+      ]
     }
-  }
+  },
+  "poolAdjust": -41,
+  "appVersion": 3
 }
