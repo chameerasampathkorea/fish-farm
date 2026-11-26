@@ -161,6 +161,16 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .dsum .nums b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
 .dsum .nums span{font-size:11px;color:var(--muted)}
 .dpanel td,.dpanel th{text-align:right}.dpanel td:first-child,.dpanel th:first-child{text-align:left}
+.rtiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+@media (max-width:520px){ .rtiles{grid-template-columns:repeat(2,1fr)} }
+.rtile{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.rtile b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.rtile span{font-size:12px;color:var(--muted)}
+.mhead{display:grid;grid-template-columns:28% 1fr 14px 1fr;gap:8px;font-size:11.5px;color:var(--muted);margin-top:8px}
+.mrow{display:grid;grid-template-columns:28% 1fr 14px 1fr;gap:8px;margin-top:6px;align-items:center}
+.mrow input,.mrow select{padding:9px 8px;font-size:15px}
+.mrow input.bad,.mrow select.bad{border-color:var(--danger);background:#fee2e2;color:#7f1d1d}
+.totnote{font-size:12px;opacity:.9;margin-top:6px}
 </style>
 </head>
 <body>
@@ -180,6 +190,7 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
       <div class="stat"><b id="sReady">–</b><span data-t="readyTanks"></span></div>
       <div class="stat"><b id="sEmpty">–</b><span data-t="emptyTanks"></span></div>
     </div>
+    <div class="totnote" id="totNote" hidden></div>
     <div class="updated"><span data-t="lastUpdate"></span>: <span id="updated">–</span> · <a href="#" id="refresh" style="color:#fff" data-t="refresh"></a></div>
   </div>
 </header>
@@ -210,14 +221,14 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     <circle cx="38" cy="10" r="1.7" fill="#111"/><circle cx="39.5" cy="14.5" r="1.5" fill="#111"/>
   </symbol></svg>
 
-  <div class="panel dpanel">
-    <h3 data-t="dailyPanel"></h3>
-    <div id="dailyList"></div>
-  </div>
-
   <div class="panel">
     <h3 data-t="history"></h3>
     <ul class="log" id="log"></ul>
+  </div>
+
+  <div class="panel dpanel" id="report">
+    <h3 data-t="reportTitle"></h3>
+    <div id="dailyList"></div>
   </div>
 
   <div class="panel plan">
@@ -277,7 +288,15 @@ const T = {
     dailyHint:"숫자를 넣은 수조만 저장됩니다. 같은 날짜를 다시 입력하면 더해집니다.",dSave:"저장 · 총계 반영",newTotal:"새 총 마리수",totLoss:"총 감소",
     dailyPanel:"일일 폐사 현황 (최근 7일)",noDaily:"아직 입력이 없습니다",aDaily:"일일 감소",
     hospital:"병원 수조",hospShort:"🏥 병원",mkHosp:"🏥 병원 수조로 지정",unHosp:"병원 수조 해제",labelLbl:"수조 이름표",labelPh:"예: 치어, 선별, 격리…",
-    aHosp:"병원 수조 지정",aUnhosp:"병원 수조 해제",aLabel:"이름표",fHosp:"병원",lgHosp:"병원 수조",unknown:"수량 미확인",unknownNote:"물고기는 있지만 마리수를 아직 모릅니다. 세어 본 후 아래에 정확한 수량을 입력하세요.",markUnknown:"🐟 물고기 있음 (수량 미확인)",aUnknown:"물고기 있음 (수량 미확인)",unknownTanks:"수조 수량 미확인"},
+    aHosp:"병원 수조 지정",aUnhosp:"병원 수조 해제",aLabel:"이름표",fHosp:"병원",lgHosp:"병원 수조",unknown:"수량 미확인",unknownNote:"물고기는 있지만 마리수를 아직 모릅니다. 세어 본 후 아래에 정확한 수량을 입력하세요.",markUnknown:"🐟 물고기 있음 (수량 미확인)",aUnknown:"물고기 있음 (수량 미확인)",unknownTanks:"수조 수량 미확인",
+    dailyTitle:"일일 폐사 · 투약 기록",diedTotal:"💀 오늘 폐사 (전체 합계)",diedHint:"수조별로 나누지 않고 총 마리수에서만 뺍니다.",
+    medTitle:"💊 투약 → 병원 수조로 이동",medHint:"투약한 물고기는 농장에서 빠지지 않고 병원 수조로 들어갑니다. 원래 수조를 모르면 '모름'을 선택하세요.",
+    count:"마리수",fromTank:"어느 수조에서",srcUnknown:"모름 (전체에서)",toHosp:"병원 수조",addRow:"+ 줄 추가",
+    noHospTank:"병원 수조가 없습니다. 먼저 수조를 눌러 '병원 수조로 지정' 하세요.",movedHosp:"병원 이동",
+    resetAdj:"전체 재계수 완료 → 미반영 수량 0으로",confirmReset:"모든 수조를 다시 세어 입력했습니까? 수조에서 빼지 않은 폐사·이동 수량을 0으로 만듭니다.",
+    totNote:"총 마리수 = 수조 합계 {a} − 수조에서 빼지 않은 폐사·이동 {b}",
+    reportTitle:"📊 일일 폐사 · 투약 보고",todayDied:"오늘 폐사",monthDied:"이번 달 폐사",allDied:"누적 폐사",inHosp:"병원 수조 마리수",
+    colMed:"투약→병원",colHosp:"병원 수조",farmAll:"전체",aDied:"폐사 (전체)",aMedicine:"투약 → 병원",aMedOut:"투약 → 병원 이동",aReset:"미반영 수량 초기화"},
   en:{subtitle:"Tank map · Stock status",admin:"Admin",totalFish:"Total fish",activeTanks:"Stocked tanks",readyTanks:"Delivery ready",emptyTanks:"Empty tanks",
     lastUpdate:"Last update",refresh:"Refresh",fAll:"All",fReady:"Ready",fEmpty:"Empty",lgActive:"Stocked",lgReady:"Delivery ready",lgEmpty:"Empty",
     history:"Change history",noHistory:"No changes yet",origPlan:"Original floor plan photo",origPlanNote:"Data entered from the handwritten sheet of 2026-11-13.",
@@ -297,7 +316,15 @@ const T = {
     dailyHint:"Only tanks with a number are saved. Entering the same date again adds to it.",dSave:"Save & update totals",newTotal:"New total",totLoss:"Total loss",
     dailyPanel:"Daily losses (last 7 days)",noDaily:"No entries yet",aDaily:"Daily loss",
     hospital:"Hospital tank",hospShort:"🏥 Hosp.",mkHosp:"🏥 Make hospital tank",unHosp:"Remove hospital label",labelLbl:"Tank label",labelPh:"e.g. small fish, sorted…",
-    aHosp:"Hospital tank",aUnhosp:"Hospital removed",aLabel:"Label",fHosp:"Hospital",lgHosp:"Hospital tank",unknown:"Count unknown",unknownNote:"Fish are in this tank but the count is not known yet. After counting, enter the exact number below.",markUnknown:"🐟 Has fish (count unknown)",aUnknown:"Has fish (count unknown)",unknownTanks:"tanks count unknown"},
+    aHosp:"Hospital tank",aUnhosp:"Hospital removed",aLabel:"Label",fHosp:"Hospital",lgHosp:"Hospital tank",unknown:"Count unknown",unknownNote:"Fish are in this tank but the count is not known yet. After counting, enter the exact number below.",markUnknown:"🐟 Has fish (count unknown)",aUnknown:"Has fish (count unknown)",unknownTanks:"tanks count unknown",
+    dailyTitle:"Daily deaths & medicine",diedTotal:"💀 Today's deaths (farm total)",diedHint:"Taken off the farm total only, not off a tank.",
+    medTitle:"💊 Medicine → moved to hospital tank",medHint:"Medicine fish stay on the farm and go into the hospital tank. If you don't know the source tank, pick 'Unknown'.",
+    count:"Fish",fromTank:"From tank",srcUnknown:"Unknown (from total)",toHosp:"Hospital tank",addRow:"+ Add row",
+    noHospTank:"No hospital tank yet. Tap a tank and choose 'Make hospital tank' first.",movedHosp:"To hospital",
+    resetAdj:"Full recount done → reset unassigned amount",confirmReset:"Did you recount every tank? This sets the deaths/moves not taken off a tank back to 0.",
+    totNote:"Total = tanks {a} − deaths/moves not taken off a tank {b}",
+    reportTitle:"📊 Daily deaths & medicine report",todayDied:"Died today",monthDied:"Died this month",allDied:"Died (all time)",inHosp:"In hospital tanks",
+    colMed:"Medicine→hosp.",colHosp:"Hospital tank",farmAll:"Farm",aDied:"Deaths (farm total)",aMedicine:"Medicine → hospital",aMedOut:"Medicine → moved out",aReset:"Unassigned amount reset"},
 };
 const BLD_NAME = {ko:id=>id+"동", en:id=>"Building "+id};
 
@@ -396,6 +423,8 @@ function fishSvg(x, d, max){
     return `<svg class="fish" viewBox="0 0 46 26" style="left:${left.toFixed(1)}%;top:${top.toFixed(1)}%;width:min(${w.toFixed(0)}px,36%);transform:rotate(${rot}deg) scaleX(${flip})"><use href="#fl"/></svg>`;
   }).join("");
 }
+function farmTotal(f){ return Object.values(f.tanks).reduce((a,x)=>a+(x.status==="empty"?0:x.count),0) + (f.poolAdjust||0); }
+function cntText(d){ return d.status==="empty" ? null : d.unknown ? (d.count ? fmt(d.count)+"+?" : "?") : fmt(d.count); }
 function tankInfo(id){ return (data.tanks[id] ||= {count:0,status:"empty",note:""}); }
 function render(){
   document.documentElement.lang = lang;
@@ -408,7 +437,10 @@ function render(){
 
   const all = Object.values(data.tanks);
   const unk = all.filter(x=>x.unknown && x.status!=="empty").length;
-  $("#sTotal").innerHTML = fmt(all.reduce((a,x)=>a+(x.status==="empty"?0:x.count),0)) + (unk?`<small style="font-size:14px" title="${unk} ${t("unknownTanks")}"> +?</small>`:"");
+  const tankSum = all.reduce((a,x)=>a+(x.status==="empty"?0:x.count),0), adj = data.poolAdjust||0;
+  $("#totNote").hidden = !adj;
+  $("#totNote").textContent = "ℹ️ " + t("totNote").replace("{a}",fmt(tankSum)).replace("{b}",fmt(-adj));
+  $("#sTotal").innerHTML = fmt(tankSum+adj) + (unk?`<small style="font-size:14px" title="${unk} ${t("unknownTanks")}"> +?</small>`:"");
   $("#sActive").textContent = all.filter(x=>x.status!=="empty").length;
   $("#sReady").textContent = all.filter(x=>x.status==="ready").length;
   $("#sEmpty").textContent = all.filter(x=>x.status==="empty").length;
@@ -428,7 +460,7 @@ function render(){
       const lbl = (d.hospital ? `<span class="lbl hosp">${x.small ? "🏥" : t("hospShort")}</span>` : "") + (d.label ? `<span class="lbl">${esc(d.label)}</span>` : "");
       return `<button class="tank ${st} ${d.hospital?"hospital":""} ${x.diag||""} ${x.small?"small":""}${dim}" style="${pos}" data-id="${x.id}" aria-label="${x.id}">
         ${fishSvg(x, d, max)}<span class="top"><span class="no">${x.id}</span>${lbl}</span>
-        <span class="cnt">${st==="empty" ? t("emptyShort") : d.unknown ? "?" : fmt(d.count)}</span>
+        <span class="cnt">${cntText(d) ?? t("emptyShort")}</span>
         ${st==="ready"?'<span class="ico">🚚</span>':""}${d.note?'<span class="ico" style="right:'+(st==="ready"?"20px":"4px")+'">📝</span>':""}
       </button>`;
     }).join("");
@@ -440,10 +472,21 @@ function render(){
     </section>`;
   }).join("");
 
-  const days = Object.entries(data.daily||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,7);
-  $("#dailyList").innerHTML = days.length ? `<table class="dtab"><thead><tr><th>${t("date")}</th><th>${t("rDied")}</th><th>${t("rMedicine")}</th><th>${t("sum")}</th><th>${t("totalFish")}</th></tr></thead><tbody>${
-    days.map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td><td class="d-neg">${fmt(r.died)}</td><td class="d-neg">${fmt(r.med)}</td><td><b>${fmt(r.died+r.med)}</b></td><td>${r.total!=null?fmt(r.total):"–"}</td></tr>`).join("")
-  }</tbody></table>` : `<p class="muted">${t("noDaily")}</p>`;
+  const daysAll = Object.entries(data.daily||{}).sort((a,b)=>b[0].localeCompare(a[0]));
+  const td = today(), mon = td.slice(0,7);
+  const dToday = data.daily?.[td]?.died || 0;
+  const dMonth = daysAll.filter(([d])=>d.startsWith(mon)).reduce((a,[,r])=>a+(r.died||0),0);
+  const dAll = daysAll.reduce((a,[,r])=>a+(r.died||0),0);
+  const hosp = all.filter(x=>x.hospital && x.status!=="empty");
+  const hospTxt = fmt(hosp.reduce((a,x)=>a+x.count,0)) + (hosp.some(x=>x.unknown)?"+?":"");
+  $("#dailyList").innerHTML = `<div class="rtiles">
+      <div class="rtile"><b class="d-neg">${fmt(dToday)}</b><span>💀 ${t("todayDied")}</span></div>
+      <div class="rtile"><b class="d-neg">${fmt(dMonth)}</b><span>💀 ${t("monthDied")}</span></div>
+      <div class="rtile"><b>${fmt(dAll)}</b><span>💀 ${t("allDied")}</span></div>
+      <div class="rtile"><b>${hospTxt}</b><span>🏥 ${t("inHosp")}</span></div></div>` +
+    (daysAll.length ? `<table class="dtab"><thead><tr><th>${t("date")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("colMed")}</th><th>${t("colHosp")}</th><th>${t("totalFish")}</th></tr></thead><tbody>${
+      daysAll.slice(0,31).map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td><td class="d-neg">${fmt(r.died)}</td><td>${fmt(r.med)}</td><td class="muted">${Object.keys(r.medTo||{}).join(", ")||"–"}</td><td><b>${r.total!=null?fmt(r.total):"–"}</b></td></tr>`).join("")
+    }</tbody></table>` : `<p class="muted">${t("noDaily")}</p>`);
 
   const log = (data.log||[]).slice().reverse().slice(0,40);
   $("#log").innerHTML = log.length ? log.map(logLine).join("") : `<li class="muted">${t("noHistory")}</li>`;
@@ -458,7 +501,7 @@ function logLine(e){
   const delta = e.to!=null && e.from!=null ? e.to-e.from : null;
   const dtxt = delta ? `<span class="${delta<0?"d-neg":"d-pos"}">${delta>0?"+":""}${fmt(delta)}</span>` : "";
   const extra = [e.died?t("rDied")+" "+fmt(e.died):"", e.med?t("rMedicine")+" "+fmt(e.med):"", e.reason?t("r"+e.reason):"", e.other?("#"+e.other):"", e.note?("“"+esc(e.note)+"”"):""].filter(Boolean).join(" · ");
-  return `<li><span class="when">${fmtDate(e.t).slice(5)}</span><span class="what"><b>${e.tank}</b> ${t("a"+e.action)} ${dtxt} ${e.to!=null?"→ "+fmt(e.to):""}${extra?` <span class="muted">${extra}</span>`:""}</span></li>`;
+  return `<li><span class="when">${fmtDate(e.t).slice(5)}</span><span class="what"><b>${e.tank==="ALL"?t("farmAll"):e.tank}</b> ${t("a"+e.action)} ${dtxt} ${e.to!=null?"→ "+fmt(e.to):""}${extra?` <span class="muted">${extra}</span>`:""}</span></li>`;
 }
 
 /* ===================== SHEET (tank detail / admin edit) ===================== */
@@ -469,7 +512,7 @@ function openSheet(id, refresh){
   const others = LAYOUT.flatMap(b=>b.tanks.filter(x=>x.id&&x.id!==id).map(x=>x.id));
   let h = `<div class="grab"></div>
     <div class="shead"><h2>${id}</h2><span class="badge ${st}">${st==="ready"?"🚚 ":""}${t(st)}</span>${d.hospital?`<span class="badge hosp">🏥 ${t("hospital")}</span>`:""}${d.label?`<span class="badge active">${esc(d.label)}</span>`:""}<button class="x" data-act="close">✕</button></div>
-    <div class="big">${st==="empty" ? "0" : d.unknown ? "?" : fmt(d.count)} <small class="muted">${d.unknown && st!=="empty" ? t("unknown") : t("fish")}</small></div>
+    <div class="big">${cntText(d) ?? "0"} <small class="muted">${d.unknown && st!=="empty" ? t("unknown") : t("fish")}</small></div>
     ${d.unknown && st!=="empty" ? `<div class="muted" style="margin-bottom:4px">${t("unknownNote")}</div>` : ""}
     ${d.note?`<div class="muted">📝 ${esc(d.note)}</div>`:""}`;
   if(admin){
@@ -485,7 +528,7 @@ function openSheet(id, refresh){
     } else {
       h += `<div class="sec"><label>${t("reduce")}</label>
           <div class="row"><input id="inReduce" type="number" inputmode="numeric" min="1" placeholder="0">
-          <select id="inReason" style="max-width:42%"><option value="Died">${t("rDied")}</option><option value="Medicine">${t("rMedicine")}</option><option value="Sold">${t("rSold")}</option><option value="Other">${t("rOther")}</option></select></div>
+          <select id="inReason" style="max-width:42%"><option value="Died">${t("rDied")}</option><option value="Sold">${t("rSold")}</option><option value="Other">${t("rOther")}</option></select></div>
           <div class="qs">${[1,5,10,20,50,100].map(n=>`<button data-q="${n}">-${n}</button>`).join("")}</div>
           <button class="btn red block" style="margin-top:8px" data-act="reduce">${t("reduceBtn")}</button></div>
         <div class="sec two">
@@ -594,64 +637,87 @@ function openLogin(){
 }
 
 /* ===================== DAILY DEATHS / MEDICINE ===================== */
+// Deaths: one number for the whole farm, taken off the farm total (data.poolAdjust), not off a tank.
+// Medicine: fish stay on the farm and move into a hospital tank (from a tank, or from the total if unknown).
 function today(){ const d=new Date(), p=n=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`; }
-function readDaily(){
-  const out = {};
-  document.querySelectorAll("#dTable input").forEach(inp => {
-    const v = Math.max(0, parseInt(inp.value,10) || 0);
-    (out[inp.dataset.id] ||= [0,0])[inp.dataset.k==="d"?0:1] += v;
-  });
-  return out;
+const allIds = () => LAYOUT.flatMap(b=>b.tanks.filter(x=>x.id).map(x=>x.id));
+function medRow(){
+  const src = allIds().filter(id=>{ const d=tankInfo(id); return d.status!=="empty" && !d.hospital && !d.unknown; });
+  const hosp = allIds().filter(id=>tankInfo(id).hospital);
+  return `<div class="mrow"><input type="number" inputmode="numeric" min="0" placeholder="0" class="mN">
+    <select class="mFrom"><option value="">${t("srcUnknown")}</option>${src.map(id=>`<option value="${id}">${id} (${fmt(tankInfo(id).count)})</option>`).join("")}</select>
+    <span>→</span><select class="mTo">${hosp.map(id=>`<option value="${id}">🏥 ${id}</option>`).join("")}</select></div>`;
+}
+function readMeds(){
+  return [...document.querySelectorAll("#mRows .mrow")].map(r=>({ el:r, n:Math.max(0,parseInt(r.querySelector(".mN").value,10)||0), from:r.querySelector(".mFrom").value, to:r.querySelector(".mTo").value })).filter(m=>m.n>0);
 }
 function openDaily(){
   openId = null;
-  const rows = LAYOUT.map(b => {
-    const ids = b.tanks.filter(x=>x.id && tankInfo(x.id).status!=="empty").map(x=>x.id).sort();
-    if(!ids.length) return "";
-    return `<tr class="bh"><td colspan="4">${esc(BLD_NAME[lang](b.id))}</td></tr>` + ids.map(id => { const d = tankInfo(id); return `<tr>
-      <td><b>${id}</b>${d.hospital?" 🏥":""}</td><td class="muted">${d.unknown?"?":fmt(d.count)}</td>
-      <td><input type="number" inputmode="numeric" min="0" placeholder="0" data-id="${id}" data-k="d"></td>
-      <td><input type="number" inputmode="numeric" min="0" placeholder="0" data-id="${id}" data-k="m"></td></tr>`; }).join("");
-  }).join("");
+  const hasHosp = allIds().some(id=>tankInfo(id).hospital);
+  const adj = data.poolAdjust||0;
   $("#sheet").innerHTML = `<div class="grab"></div>
     <div class="shead"><h2>${t("dailyTitle")}</h2><button class="x" data-act="close">✕</button></div>
     <div class="sec" style="border:0;margin-top:4px;padding-top:4px"><label>${t("date")}</label><input id="dDate" type="date" value="${today()}" style="width:auto"></div>
-    <p class="muted">${t("dailyHint")}</p>
-    <table class="dtab" id="dTable"><colgroup><col style="width:18%"><col style="width:20%"><col><col></colgroup>
-      <thead><tr><th>${t("tank")}</th><th>${t("cur")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("rMedicine")}</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="dsum"><div class="nums">
-      <div><b class="d-neg" id="dD">0</b><span>${t("rDied")}</span></div><div><b class="d-neg" id="dM">0</b><span>${t("rMedicine")}</span></div>
-      <div><b id="dL">0</b><span>${t("totLoss")}</span></div><div><b id="dN">0</b><span>${t("newTotal")}</span></div></div>
-      <button class="btn red block" id="dSave">${t("dSave")}</button></div>`;
+    <div class="sec"><label style="font-size:14px;color:var(--ink)">${t("diedTotal")}</label>
+      <input id="dDied" type="number" inputmode="numeric" min="0" placeholder="0" style="font-size:22px;font-weight:700">
+      <p class="muted" style="margin:6px 0 0">${t("diedHint")}</p></div>
+    <div class="sec"><label style="font-size:14px;color:var(--ink)">${t("medTitle")}</label>
+      <p class="muted" style="margin:0 0 4px">${t("medHint")}</p>
+      ${hasHosp ? `<div class="mhead"><span>${t("count")}</span><span>${t("fromTank")}</span><span></span><span>${t("toHosp")}</span></div>
+        <div id="mRows">${medRow()}</div>
+        <button class="btn ghost" style="margin-top:8px" id="mAdd">${t("addRow")}</button>`
+      : `<p style="color:var(--danger);font-weight:600">${t("noHospTank")}</p>`}</div>
+    <div class="dsum"><div class="nums" style="grid-template-columns:repeat(3,1fr)">
+      <div><b class="d-neg" id="dD">0</b><span>💀 ${t("rDied")}</span></div><div><b id="dM">0</b><span>🏥 ${t("movedHosp")}</span></div>
+      <div><b id="dN">0</b><span>${t("newTotal")}</span></div></div>
+      <button class="btn red block" id="dSave">${t("dSave")}</button>
+      ${adj ? `<button class="btn ghost block" style="margin-top:8px;font-size:13px" id="dReset">${t("resetAdj")} (${fmt(adj)})</button>` : ""}</div>`;
   document.body.classList.add("sheet-open");
   const update = () => {
-    const e = readDaily(); let D=0, M=0;
-    document.querySelectorAll("#dTable input").forEach(inp => { const a=e[inp.dataset.id]; const ti=tankInfo(inp.dataset.id); inp.classList.toggle("bad", !ti.unknown && a[0]+a[1] > ti.count); });
-    Object.values(e).forEach(a => { D+=a[0]; M+=a[1]; });
-    const total = Object.values(data.tanks).reduce((a,x)=>a+(x.status==="empty"?0:x.count),0);
-    $("#dD").textContent = fmt(D); $("#dM").textContent = fmt(M); $("#dL").textContent = fmt(D+M); $("#dN").textContent = fmt(total-D-M);
+    const D = Math.max(0, parseInt($("#dDied").value,10)||0), meds = readMeds(), used = {};
+    document.querySelectorAll("#mRows .mFrom").forEach(s=>s.classList.remove("bad"));
+    meds.forEach(m => { if(m.from){ used[m.from]=(used[m.from]||0)+m.n; } });
+    meds.forEach(m => { if(m.from && used[m.from] > tankInfo(m.from).count) m.el.querySelector(".mFrom").classList.add("bad"); });
+    const M = meds.reduce((a,m)=>a+m.n,0);
+    $("#dD").textContent = fmt(D); $("#dM").textContent = fmt(M); $("#dN").textContent = fmt(farmTotal(data) - D);
   };
-  $("#dTable").addEventListener("input", update); update();
+  $("#sheet").querySelectorAll("#dDied").forEach(el=>el.addEventListener("input", update));
+  if($("#mRows")){
+    $("#mRows").addEventListener("input", update); $("#mRows").addEventListener("change", update);
+    $("#mAdd").onclick = () => { $("#mRows").insertAdjacentHTML("beforeend", medRow()); };
+  }
+  update();
+  if($("#dReset")) $("#dReset").onclick = async () => {
+    if(!confirm(t("confirmReset"))) return;
+    busy(true);
+    try{ data = await commit(f => { (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:"Reset", note:String(f.poolAdjust||0)}); f.poolAdjust = 0; }, "Reset unassigned deaths after recount");
+      toast(t("saved")); closeSheet(); render(); }
+    catch(err){ toast(t("err")+": "+err.message, true); }
+    finally{ busy(false); }
+  };
   $("#dSave").onclick = async () => {
     const date = $("#dDate").value || today();
-    const e = Object.fromEntries(Object.entries(readDaily()).filter(([,a])=>a[0]+a[1]>0));
-    if(!Object.keys(e).length) return toast(t("invalid"), true);
-    if(document.querySelector("#dTable input.bad")) return toast(t("tooMany"), true);
-    let D=0, M=0; Object.values(e).forEach(a=>{ D+=a[0]; M+=a[1]; });
+    const D = Math.max(0, parseInt($("#dDied").value,10)||0), meds = readMeds().map(({n,from,to})=>({n,from,to}));
+    if(!D && !meds.length) return toast(t("invalid"), true);
+    if(document.querySelector("#mRows .bad")) return toast(t("tooMany"), true);
+    const M = meds.reduce((a,m)=>a+m.n,0);
     const mut = f => {
-      const now = new Date().toISOString(); f.log ||= [];
-      for(const [id,[dd,mm]] of Object.entries(e)){
-        const x = f.tanks[id];
-        if(x.unknown){ f.log.push({t:now, tank:id, action:"Daily", date, died:dd, med:mm}); continue; }
-        const from = x.count; x.count = Math.max(0, from-dd-mm); if(x.count===0) x.status = "empty";
-        f.log.push({t:now, tank:id, action:"Daily", date, from, to:x.count, died:dd, med:mm});
+      const now = new Date().toISOString(); f.log ||= []; f.daily ||= {};
+      const r = (f.daily[date] ||= {died:0, med:0});
+      if(D){ f.poolAdjust = (f.poolAdjust||0) - D; r.died += D; f.log.push({t:now, tank:"ALL", action:"Died", date, died:D}); }
+      for(const m of meds){
+        const h = f.tanks[m.to]; const hf = h.count; h.count += m.n; if(h.status==="empty") h.status = "active";
+        if(m.from){
+          const sTank = f.tanks[m.from]; const sf = sTank.count; sTank.count = Math.max(0, sf-m.n); if(sTank.count===0) sTank.status = "empty";
+          f.log.push({t:now, tank:m.from, action:"MedOut", other:m.to, date, from:sf, to:sTank.count});
+        } else f.poolAdjust = (f.poolAdjust||0) - m.n;
+        f.log.push({t:now, tank:m.to, action:"Medicine", other:m.from, date, from:hf, to:h.count, med:m.n});
+        r.med += m.n; (r.medTo ||= {})[m.to] = (r.medTo[m.to]||0) + m.n;
       }
-      f.daily ||= {}; const r = (f.daily[date] ||= {died:0, med:0});
-      r.died += D; r.med += M;
-      r.total = Object.values(f.tanks).reduce((a,x)=>a+(x.status==="empty"?0:x.count),0);
+      r.total = farmTotal(f);
     };
     busy(true);
-    try{ data = await commit(mut, `Daily ${date}: died ${D}, medicine ${M}`); toast(t("saved")); closeSheet(); render(); }
+    try{ data = await commit(mut, `Daily ${date}: died ${D}, medicine to hospital ${M}`); toast(t("saved")); closeSheet(); render(); }
     catch(err){ toast(t("err")+": "+err.message, true); }
     finally{ busy(false); }
   };

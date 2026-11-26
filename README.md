@@ -11,7 +11,11 @@ The boss opens the link on a phone to see it. The admin updates it from a phone.
 
   The page refreshes every minute.
 - **Admin:** tap **관리 / Admin** and log in with **admin / admin**. Then:
-  - Tap **📋 일일 폐사 입력 / Daily loss entry** to enter today's 폐사 (died) and 투약 (medicine) numbers for every tank on one screen. The total updates as you type. One tap saves all of them and shows the new farm total.
+  - Tap **📋 일일 폐사 입력 / Daily loss entry** once a day:
+    - **💀 Deaths:** enter one number for the whole farm. It comes off the farm total, not off a tank.
+    - **💊 Medicine:** these fish stay on the farm and move into a 🏥 hospital tank. Choose the tank they came from, or "Unknown" if you don't know.
+    - The report at the bottom of the page shows deaths today, this month and in total, the fish in hospital tanks, and a day-by-day table.
+    - After a full recount of every tank, use **전체 재계수 완료 / Full recount done** to reset the deaths/moves that were not taken off a tank.
   - Tap any tank to:
     - reduce the count (died / medicine / sold), with quick −1 / −5 / −10 / −20 / −50 / −100 buttons
     - mark it 🚚 **delivery ready**, or ✅ **harvested → empty tank**
