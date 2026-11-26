@@ -19,9 +19,10 @@
     },
     "114": {
       "count": 0,
-      "status": "empty",
+      "status": "active",
       "note": "",
-      "hospital": true
+      "hospital": true,
+      "unknown": true
     },
     "121": {
       "count": 1560,
@@ -95,10 +96,11 @@
     },
     "213": {
       "count": 0,
-      "status": "empty",
+      "status": "active",
       "note": "",
       "label": "",
-      "hospital": true
+      "hospital": true,
+      "unknown": true
     },
     "214": {
       "count": 1680,
@@ -253,6 +255,16 @@
       "t": "2026-11-26T10:36:45.839Z",
       "tank": "114",
       "action": "Hosp"
+    },
+    {
+      "t": "2026-11-26T11:00:00.000Z",
+      "tank": "114",
+      "action": "Unknown"
+    },
+    {
+      "t": "2026-11-26T11:00:00.000Z",
+      "tank": "213",
+      "action": "Unknown"
     }
   ]
 }

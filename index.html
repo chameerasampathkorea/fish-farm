@@ -277,7 +277,7 @@ const T = {
     dailyHint:"숫자를 넣은 수조만 저장됩니다. 같은 날짜를 다시 입력하면 더해집니다.",dSave:"저장 · 총계 반영",newTotal:"새 총 마리수",totLoss:"총 감소",
     dailyPanel:"일일 폐사 현황 (최근 7일)",noDaily:"아직 입력이 없습니다",aDaily:"일일 감소",
     hospital:"병원 수조",hospShort:"🏥 병원",mkHosp:"🏥 병원 수조로 지정",unHosp:"병원 수조 해제",labelLbl:"수조 이름표",labelPh:"예: 치어, 선별, 격리…",
-    aHosp:"병원 수조 지정",aUnhosp:"병원 수조 해제",aLabel:"이름표",fHosp:"병원",lgHosp:"병원 수조"},
+    aHosp:"병원 수조 지정",aUnhosp:"병원 수조 해제",aLabel:"이름표",fHosp:"병원",lgHosp:"병원 수조",unknown:"수량 미확인",unknownNote:"물고기는 있지만 마리수를 아직 모릅니다. 세어 본 후 아래에 정확한 수량을 입력하세요.",markUnknown:"🐟 물고기 있음 (수량 미확인)",aUnknown:"물고기 있음 (수량 미확인)",unknownTanks:"수조 수량 미확인"},
   en:{subtitle:"Tank map · Stock status",admin:"Admin",totalFish:"Total fish",activeTanks:"Stocked tanks",readyTanks:"Delivery ready",emptyTanks:"Empty tanks",
     lastUpdate:"Last update",refresh:"Refresh",fAll:"All",fReady:"Ready",fEmpty:"Empty",lgActive:"Stocked",lgReady:"Delivery ready",lgEmpty:"Empty",
     history:"Change history",noHistory:"No changes yet",origPlan:"Original floor plan photo",origPlanNote:"Data entered from the handwritten sheet of 2026-11-13.",
@@ -297,7 +297,7 @@ const T = {
     dailyHint:"Only tanks with a number are saved. Entering the same date again adds to it.",dSave:"Save & update totals",newTotal:"New total",totLoss:"Total loss",
     dailyPanel:"Daily losses (last 7 days)",noDaily:"No entries yet",aDaily:"Daily loss",
     hospital:"Hospital tank",hospShort:"🏥 Hosp.",mkHosp:"🏥 Make hospital tank",unHosp:"Remove hospital label",labelLbl:"Tank label",labelPh:"e.g. small fish, sorted…",
-    aHosp:"Hospital tank",aUnhosp:"Hospital removed",aLabel:"Label",fHosp:"Hospital",lgHosp:"Hospital tank"},
+    aHosp:"Hospital tank",aUnhosp:"Hospital removed",aLabel:"Label",fHosp:"Hospital",lgHosp:"Hospital tank",unknown:"Count unknown",unknownNote:"Fish are in this tank but the count is not known yet. After counting, enter the exact number below.",markUnknown:"🐟 Has fish (count unknown)",aUnknown:"Has fish (count unknown)",unknownTanks:"tanks count unknown"},
 };
 const BLD_NAME = {ko:id=>id+"동", en:id=>"Building "+id};
 
@@ -383,9 +383,9 @@ async function load(){
 // Draw flounder icons in the tank: more fish -> more icons (1..9), placed on a jittered 3x3 grid
 function rng(seed){ return () => { seed = (seed*16807) % 2147483647; return (seed-1)/2147483646; }; }
 function fishSvg(x, d, max){
-  if(d.status==="empty" || !d.count) return "";
+  if(d.status==="empty" || (!d.count && !d.unknown)) return "";
   const cap = x.small ? 3 : 9;
-  const n = Math.max(1, Math.min(cap, Math.round(d.count/max*cap)));
+  const n = d.unknown ? Math.max(2, Math.round(cap/2)) : Math.max(1, Math.min(cap, Math.round(d.count/max*cap)));
   const r = rng(parseInt(x.id,10)*7919+13);
   const slots = [...Array(9).keys()].sort(()=>r()-.5);
   const top0 = x.diag ? 38 : 14, h = 100-top0-22;
@@ -407,7 +407,8 @@ function render(){
   $("#farmName").textContent = data.farm || "Fish Farm";
 
   const all = Object.values(data.tanks);
-  $("#sTotal").textContent = fmt(all.reduce((a,x)=>a+(x.status==="empty"?0:x.count),0));
+  const unk = all.filter(x=>x.unknown && x.status!=="empty").length;
+  $("#sTotal").innerHTML = fmt(all.reduce((a,x)=>a+(x.status==="empty"?0:x.count),0)) + (unk?`<small style="font-size:14px" title="${unk} ${t("unknownTanks")}"> +?</small>`:"");
   $("#sActive").textContent = all.filter(x=>x.status!=="empty").length;
   $("#sReady").textContent = all.filter(x=>x.status==="ready").length;
   $("#sEmpty").textContent = all.filter(x=>x.status==="empty").length;
@@ -427,14 +428,14 @@ function render(){
       const lbl = (d.hospital ? `<span class="lbl hosp">${x.small ? "🏥" : t("hospShort")}</span>` : "") + (d.label ? `<span class="lbl">${esc(d.label)}</span>` : "");
       return `<button class="tank ${st} ${d.hospital?"hospital":""} ${x.diag||""} ${x.small?"small":""}${dim}" style="${pos}" data-id="${x.id}" aria-label="${x.id}">
         ${fishSvg(x, d, max)}<span class="top"><span class="no">${x.id}</span>${lbl}</span>
-        <span class="cnt">${st==="empty" ? t("emptyShort") : fmt(d.count)}</span>
+        <span class="cnt">${st==="empty" ? t("emptyShort") : d.unknown ? "?" : fmt(d.count)}</span>
         ${st==="ready"?'<span class="ico">🚚</span>':""}${d.note?'<span class="ico" style="right:'+(st==="ready"?"20px":"4px")+'">📝</span>':""}
       </button>`;
     }).join("");
     return `<section class="bld ${b.cls||""}">
       <div class="bhead"><h2>${esc(BLD_NAME[lang](b.id))}</h2>
         <span class="meta">${ready?"🚚 "+ready+" · ":""}${empty?"⬜ "+empty:""}</span>
-        <span class="tot">${fmt(tot)} <small class="meta">${t("fish")}</small></span></div>
+        <span class="tot">${fmt(tot)}${ids.some(id=>tankInfo(id).unknown && tankInfo(id).status!=="empty")?"+?":""} <small class="meta">${t("fish")}</small></span></div>
       <div class="grid" style="grid-template-columns:${b.cols};grid-template-rows:${b.rows}">${cells}</div>
     </section>`;
   }).join("");
@@ -468,11 +469,19 @@ function openSheet(id, refresh){
   const others = LAYOUT.flatMap(b=>b.tanks.filter(x=>x.id&&x.id!==id).map(x=>x.id));
   let h = `<div class="grab"></div>
     <div class="shead"><h2>${id}</h2><span class="badge ${st}">${st==="ready"?"🚚 ":""}${t(st)}</span>${d.hospital?`<span class="badge hosp">🏥 ${t("hospital")}</span>`:""}${d.label?`<span class="badge active">${esc(d.label)}</span>`:""}<button class="x" data-act="close">✕</button></div>
-    <div class="big">${st==="empty" ? "0" : fmt(d.count)} <small class="muted">${t("fish")}</small></div>
+    <div class="big">${st==="empty" ? "0" : d.unknown ? "?" : fmt(d.count)} <small class="muted">${d.unknown && st!=="empty" ? t("unknown") : t("fish")}</small></div>
+    ${d.unknown && st!=="empty" ? `<div class="muted" style="margin-bottom:4px">${t("unknownNote")}</div>` : ""}
     ${d.note?`<div class="muted">📝 ${esc(d.note)}</div>`:""}`;
   if(admin){
     if(st==="empty"){
-      h += `<div class="sec"><label>${t("restock")}</label><div class="row"><input id="inRestock" type="number" inputmode="numeric" min="1" placeholder="0"><button class="btn green" data-act="restock">${t("restockBtn")}</button></div></div>`;
+      h += `<div class="sec"><label>${t("restock")}</label><div class="row"><input id="inRestock" type="number" inputmode="numeric" min="1" placeholder="0"><button class="btn green" data-act="restock">${t("restockBtn")}</button></div>
+        <button class="btn ghost block" style="margin-top:8px" data-act="unknown">${t("markUnknown")}</button></div>`;
+    } else if(d.unknown){
+      h += `<div class="sec"><label>${t("setExact")}</label><div class="row"><input id="inSet" type="number" inputmode="numeric" min="0" placeholder="0"><button class="btn" data-act="set">${t("setBtn")}</button></div></div>
+        <div class="sec two">
+          <button class="btn ${st==="ready"?"ghost":"amber"}" data-act="ready">${st==="ready"?t("unmarkReady"):t("markReady")}</button>
+          <button class="btn green" data-act="harvest">${t("harvest")}</button>
+        </div>`;
     } else {
       h += `<div class="sec"><label>${t("reduce")}</label>
           <div class="row"><input id="inReduce" type="number" inputmode="numeric" min="1" placeholder="0">
@@ -520,11 +529,11 @@ async function act(kind){
     msg = `${id}: +${n}`;
   } else if(kind==="restock"){
     const n = num("#inRestock"); if(!n) return toast(t("invalid"),true);
-    mut = f => { const x=f.tanks[id]; x.count=n; x.status="active"; L(f,{action:"Restock",from:0,to:n}); };
+    mut = f => { const x=f.tanks[id]; x.count=n; x.status="active"; delete x.unknown; L(f,{action:"Restock",from:0,to:n}); };
     msg = `${id}: restock ${n}`;
   } else if(kind==="set"){
     const n = num("#inSet"); if(n==null) return toast(t("invalid"),true);
-    mut = f => { const x=f.tanks[id]; const from=x.count; x.count=n; if(n===0) x.status="empty"; else if(x.status==="empty") x.status="active"; L(f,{action:"Set",from,to:n}); };
+    mut = f => { const x=f.tanks[id]; const from=x.unknown?null:x.count; x.count=n; delete x.unknown; if(n===0) x.status="empty"; else if(x.status==="empty") x.status="active"; L(f,{action:"Set",from,to:n}); };
     msg = `${id}: set ${n}`;
   } else if(kind==="ready"){
     const on = cur.status!=="ready";
@@ -532,7 +541,7 @@ async function act(kind){
     msg = `${id}: ${on?"delivery ready":"not ready"}`;
   } else if(kind==="harvest"){
     if(!confirm(id+" — "+t("confirmHarvest"))) return;
-    mut = f => { const x=f.tanks[id]; const from=x.count; x.count=0; x.status="empty"; L(f,{action:"Harvest",reason:"Sold",from,to:0}); };
+    mut = f => { const x=f.tanks[id]; const from=x.unknown?null:x.count; x.count=0; x.status="empty"; delete x.unknown; L(f,{action:"Harvest",reason:"Sold",from,to:0}); };
     msg = `${id}: harvested, now empty`;
   } else if(kind==="move"){
     const n = num("#inMove"), to = $("#inTo").value;
@@ -542,6 +551,9 @@ async function act(kind){
       const fa=a.count, fb=b.count; a.count-=n; b.count+=n; if(a.count===0) a.status="empty"; if(b.status==="empty") b.status="active";
       L(f,{action:"MoveOut",other:to,from:fa,to:a.count}); f.log.push({t:now,tank:to,action:"MoveIn",other:id,from:fb,to:b.count}); };
     msg = `${id} → ${to}: ${n}`;
+  } else if(kind==="unknown"){
+    mut = f => { const x=f.tanks[id]; x.count=0; x.status="active"; x.unknown=true; L(f,{action:"Unknown"}); };
+    msg = `${id}: has fish, count unknown`;
   } else if(kind==="hosp"){
     const on = !cur.hospital;
     mut = f => { f.tanks[id].hospital = on; L(f,{action:on?"Hosp":"Unhosp"}); };
@@ -597,7 +609,7 @@ function openDaily(){
     const ids = b.tanks.filter(x=>x.id && tankInfo(x.id).status!=="empty").map(x=>x.id).sort();
     if(!ids.length) return "";
     return `<tr class="bh"><td colspan="4">${esc(BLD_NAME[lang](b.id))}</td></tr>` + ids.map(id => { const d = tankInfo(id); return `<tr>
-      <td><b>${id}</b>${d.hospital?" 🏥":""}</td><td class="muted">${fmt(d.count)}</td>
+      <td><b>${id}</b>${d.hospital?" 🏥":""}</td><td class="muted">${d.unknown?"?":fmt(d.count)}</td>
       <td><input type="number" inputmode="numeric" min="0" placeholder="0" data-id="${id}" data-k="d"></td>
       <td><input type="number" inputmode="numeric" min="0" placeholder="0" data-id="${id}" data-k="m"></td></tr>`; }).join("");
   }).join("");
@@ -614,7 +626,7 @@ function openDaily(){
   document.body.classList.add("sheet-open");
   const update = () => {
     const e = readDaily(); let D=0, M=0;
-    document.querySelectorAll("#dTable input").forEach(inp => { const a=e[inp.dataset.id]; inp.classList.toggle("bad", a[0]+a[1] > tankInfo(inp.dataset.id).count); });
+    document.querySelectorAll("#dTable input").forEach(inp => { const a=e[inp.dataset.id]; const ti=tankInfo(inp.dataset.id); inp.classList.toggle("bad", !ti.unknown && a[0]+a[1] > ti.count); });
     Object.values(e).forEach(a => { D+=a[0]; M+=a[1]; });
     const total = Object.values(data.tanks).reduce((a,x)=>a+(x.status==="empty"?0:x.count),0);
     $("#dD").textContent = fmt(D); $("#dM").textContent = fmt(M); $("#dL").textContent = fmt(D+M); $("#dN").textContent = fmt(total-D-M);
@@ -629,7 +641,9 @@ function openDaily(){
     const mut = f => {
       const now = new Date().toISOString(); f.log ||= [];
       for(const [id,[dd,mm]] of Object.entries(e)){
-        const x = f.tanks[id]; const from = x.count; x.count = Math.max(0, from-dd-mm); if(x.count===0) x.status = "empty";
+        const x = f.tanks[id];
+        if(x.unknown){ f.log.push({t:now, tank:id, action:"Daily", date, died:dd, med:mm}); continue; }
+        const from = x.count; x.count = Math.max(0, from-dd-mm); if(x.count===0) x.status = "empty";
         f.log.push({t:now, tank:id, action:"Daily", date, from, to:x.count, died:dd, med:mm});
       }
       f.daily ||= {}; const r = (f.daily[date] ||= {died:0, med:0});
