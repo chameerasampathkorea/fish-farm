@@ -1,6 +1,6 @@
 {
   "farm": "더조은수산",
-  "updated": "2026-11-26T11:11:13.231Z",
+  "updated": "2026-11-26T11:11:32.755Z",
   "tanks": {
     "111": {
       "count": 1415,
@@ -8,7 +8,7 @@
       "note": ""
     },
     "112": {
-      "count": 1563,
+      "count": 1564,
       "status": "active",
       "note": ""
     },
@@ -25,7 +25,7 @@
       "unknown": true
     },
     "121": {
-      "count": 1554,
+      "count": 1555,
       "status": "active",
       "note": ""
     },
@@ -45,7 +45,7 @@
       "note": ""
     },
     "125": {
-      "count": 2091,
+      "count": 2092,
       "status": "active",
       "note": ""
     },
@@ -80,7 +80,7 @@
       "note": ""
     },
     "137": {
-      "count": 1563,
+      "count": 1564,
       "status": "active",
       "note": ""
     },
@@ -103,7 +103,7 @@
       "unknown": true
     },
     "214": {
-      "count": 1673,
+      "count": 1674,
       "status": "active",
       "note": ""
     },
@@ -332,11 +332,20 @@
       "action": "Died",
       "date": "2026-11-26",
       "died": 5
+    },
+    {
+      "t": "2026-11-26T11:11:32.755Z",
+      "tank": "ALL",
+      "action": "DelEntry",
+      "date": "2026-11-26",
+      "died": 5,
+      "med": 0,
+      "note": ""
     }
   ],
   "daily": {
     "2026-11-26": {
-      "died": 10,
+      "died": 5,
       "med": 129,
       "entries": [
         {
@@ -393,25 +402,12 @@
             "137": 1,
             "214": 1
           }
-        },
-        {
-          "id": "mwxgc8cv",
-          "t": "2026-11-26T11:11:13.231Z",
-          "died": 5,
-          "meds": [],
-          "alloc": {
-            "112": 1,
-            "121": 1,
-            "125": 1,
-            "137": 1,
-            "214": 1
-          }
         }
       ],
       "medTo": {
         "213": 129
       },
-      "total": 40580
+      "total": 40585
     }
   },
   "appVersion": 5
