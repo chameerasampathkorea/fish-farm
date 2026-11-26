@@ -1,6 +1,6 @@
 {
   "farm": "더조은수산",
-  "updated": "2026-11-26T10:55:31.668Z",
+  "updated": "2026-11-26T11:02:12.338Z",
   "tanks": {
     "111": {
       "count": 1420,
@@ -272,6 +272,12 @@
       "action": "Died",
       "date": "2026-11-26",
       "died": 41
+    },
+    {
+      "t": "2026-11-26T11:02:12.337Z",
+      "tank": "ALL",
+      "action": "Reset",
+      "note": "-41"
     }
   ],
   "daily": {
@@ -289,6 +295,6 @@
       ]
     }
   },
-  "poolAdjust": -41,
+  "poolAdjust": 0,
   "appVersion": 3
 }
