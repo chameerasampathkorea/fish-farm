@@ -452,5 +452,20 @@
       "total": 40585
     }
   },
-  "appVersion": 5
+  "appVersion": 6,
+  "settings": {
+    "showLog": true
+  },
+  "dailyLog": {
+    "2026-11-21": {
+      "t1": 15.8,
+      "t2": 15.6,
+      "t3": 15.4,
+      "t4": 15.5,
+      "v": 398,
+      "raw": 50,
+      "made": 100,
+      "eaten": 102
+    }
+  }
 }

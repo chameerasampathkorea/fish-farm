@@ -24,6 +24,7 @@
   }
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,"Segoe UI","Noto Sans KR",Roboto,sans-serif;
   padding-bottom:env(safe-area-inset-bottom)}
@@ -132,6 +133,28 @@ textarea{min-height:60px;resize:vertical}
 .qs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .qs button{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:5px 10px;font-size:13px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:699px){
+  .sheet{max-height:86vh;padding:10px 12px calc(14px + env(safe-area-inset-bottom))}
+  .sheet .shead h2{font-size:18px}
+  .sheet .big{font-size:26px;margin:2px 0 0}
+  .sheet .sec{margin-top:8px;padding-top:8px}
+  .sheet .sec label{margin-bottom:4px}
+  .sheet input[type=number],.sheet input[type=text],.sheet select,.sheet textarea{padding:8px 9px}
+  .sheet .btn{padding:9px 10px;font-size:14px}
+  .sheet .qs button{padding:4px 8px}
+}
+.sheet .two .btn{white-space:normal;line-height:1.25}
+.lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.lgrid label{font-size:12px;color:var(--muted);font-weight:600;display:block;margin-bottom:3px}
+.switch{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;cursor:pointer;margin-left:auto}
+.switch input{width:38px;height:22px;appearance:none;background:var(--line);border-radius:999px;position:relative;cursor:pointer;transition:.15s;margin:0}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.15s}
+.switch input:checked{background:var(--ok)}
+.switch input:checked::after{left:19px}
+.phead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.phead h3{margin:0}
+.tscroll{overflow-x:auto}
+.tscroll th{white-space:nowrap;font-size:11.5px}
 .mini-log{font-size:12.5px;margin:6px 0 0;padding:0;list-style:none;color:var(--muted)}
 .mini-log li{padding:3px 0}
 
@@ -163,8 +186,8 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .dpanel td,.dpanel th{text-align:right}.dpanel td:first-child,.dpanel th:first-child{text-align:left}
 #dailyList{overflow-x:auto}
 #dailyList th{white-space:nowrap;font-size:11.5px}
-.rtiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-@media (max-width:520px){ .rtiles{grid-template-columns:repeat(2,1fr)} }
+.rtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+@media (max-width:520px){ .rtiles{grid-template-columns:repeat(2,1fr)} .rtiles .rtile:first-child{grid-column:1/-1} }
 .rtile{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 .rtile b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
 .rtile span{font-size:12px;color:var(--muted)}
@@ -198,7 +221,7 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 </header>
 
 <main>
-  <div class="adminbar"><span>🔧</span><span data-t="adminOn" style="flex:1;min-width:140px"></span><button class="btn red" id="dailyBtn" data-t="daily"></button><button class="btn ghost" id="adminOff" data-t="logout"></button></div>
+  <div class="adminbar"><span>🔧</span><span data-t="adminOn" style="flex:1;min-width:140px"></span><button class="btn red" id="dailyBtn" data-t="daily"></button><button class="btn" id="logBtn" data-t="logBtn"></button><button class="btn ghost" id="adminOff" data-t="logout"></button></div>
   <div class="toolbar">
     <button class="chip on" data-f="all" data-t="fAll"></button>
     <button class="chip" data-f="ready">🚚 <span data-t="fReady"></span></button>
@@ -223,14 +246,20 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     <circle cx="38" cy="10" r="1.7" fill="#111"/><circle cx="39.5" cy="14.5" r="1.5" fill="#111"/>
   </symbol></svg>
 
-  <div class="panel">
-    <h3 data-t="history"></h3>
-    <ul class="log" id="log"></ul>
-  </div>
-
   <div class="panel dpanel" id="report">
     <h3 data-t="reportTitle"></h3>
     <div id="dailyList"></div>
+  </div>
+
+  <div class="panel dpanel" id="logPanel">
+    <div class="phead"><h3 data-t="logTitle"></h3><span id="logHiddenBadge" class="badge empty" data-t="logHidden" hidden></span>
+      <label class="switch" id="logSwitch" hidden><input type="checkbox" id="logShow"><span data-t="logShow"></span></label></div>
+    <div id="logList"></div>
+  </div>
+
+  <div class="panel">
+    <h3 data-t="history"></h3>
+    <ul class="log" id="log"></ul>
   </div>
 
   <div class="panel plan">
@@ -298,7 +327,11 @@ const T = {
     resetAdj:"전체 재계수 완료 → 미반영 수량 0으로",confirmReset:"모든 수조를 다시 세어 입력했습니까? 수조에서 빼지 않은 폐사·이동 수량을 0으로 만듭니다.",
     totNote:"총 마리수 = 수조 합계 {a} − 수조에서 빼지 않은 폐사·이동 {b}",
     reportTitle:"📊 일일 폐사 · 투약 보고",todayDied:"오늘 폐사",monthDied:"이번 달 폐사",allDied:"누적 폐사",inHosp:"병원 수조 마리수",
-    colMed:"투약→병원",colHosp:"병원 수조",farmAll:"전체",aDied:"폐사 (전체)",aMedicine:"투약 → 병원",aMedOut:"투약 → 병원 이동",aReset:"미반영 수량 초기화",delete:"삭제",deleteHint:"잘못 입력한 기록을 삭제하면 폐사 수는 총 마리수에 다시 더해지고, 투약 이동은 원래 수조로 돌아갑니다. (재계수 완료 전 기록은 기록만 삭제되고 수량은 바뀌지 않습니다.)",settled:"재계수 완료",confirmDelete:"이 기록을 삭제할까요?",aDelEntry:"일일 기록 삭제",aFix:"수량 정정",outdated:"새 버전이 있습니다. 페이지를 새로 불러옵니다…"},
+    colMed:"투약→병원",colHosp:"병원 수조",farmAll:"전체",aDied:"폐사 (전체)",aMedicine:"투약 → 병원",aMedOut:"투약 → 병원 이동",aReset:"미반영 수량 초기화",delete:"삭제",deleteHint:"잘못 입력한 기록을 삭제하면 폐사 수는 총 마리수에 다시 더해지고, 투약 이동은 원래 수조로 돌아갑니다. (재계수 완료 전 기록은 기록만 삭제되고 수량은 바뀌지 않습니다.)",settled:"재계수 완료",confirmDelete:"이 기록을 삭제할까요?",aDelEntry:"일일 기록 삭제",aFix:"수량 정정",outdated:"새 버전이 있습니다. 페이지를 새로 불러옵니다…",
+    curTotal:"현재 총 마리수",dayTotal:"그날 총 마리수",
+    logTitle:"📝 사육 일지 (수온 · 사료)",logBtn:"📝 사육 일지",logShow:"보스에게 표시",logHidden:"숨김 · 관리자만 보임",noLog:"아직 기록이 없습니다",
+    logHint:"같은 날짜를 다시 저장하면 그 날짜 기록이 수정됩니다. 빈 칸은 비워 두어도 됩니다.",temp:"🌡 수온 (°C)",feed:"🍤 사료",edit:"수정",
+    aLog:"사육 일지",aLogDel:"사육 일지 삭제",aLogShow:"사육 일지 표시",aLogHide:"사육 일지 숨김"},
   en:{subtitle:"Tank map · Stock status",admin:"Admin",totalFish:"Total fish",activeTanks:"Stocked tanks",readyTanks:"Delivery ready",emptyTanks:"Empty tanks",
     lastUpdate:"Last update",refresh:"Refresh",fAll:"All",fReady:"Ready",fEmpty:"Empty",lgActive:"Stocked",lgReady:"Delivery ready",lgEmpty:"Empty",
     history:"Change history",noHistory:"No changes yet",origPlan:"Original floor plan photo",origPlanNote:"Data entered from the handwritten sheet of 2026-11-13.",
@@ -326,7 +359,11 @@ const T = {
     resetAdj:"Full recount done → reset unassigned amount",confirmReset:"Did you recount every tank? This sets the deaths/moves not taken off a tank back to 0.",
     totNote:"Total = tanks {a} − deaths/moves not taken off a tank {b}",
     reportTitle:"📊 Daily deaths & medicine report",todayDied:"Died today",monthDied:"Died this month",allDied:"Died (all time)",inHosp:"In hospital tanks",
-    colMed:"Medicine→hosp.",colHosp:"Hospital tank",farmAll:"Farm",aDied:"Deaths (farm total)",aMedicine:"Medicine → hospital",aMedOut:"Medicine → moved out",aReset:"Unassigned amount reset",delete:"Delete",deleteHint:"Deleting a wrong entry adds the deaths back to the total and moves the medicine fish back to where they came from. (Entries from before a full recount are only removed from the list; the numbers do not change.)",settled:"recounted",confirmDelete:"Delete this entry?",aDelEntry:"Daily entry deleted",aFix:"Correction",outdated:"A new version is available. Reloading the page…"},
+    colMed:"Medicine→hosp.",colHosp:"Hospital tank",farmAll:"Farm",aDied:"Deaths (farm total)",aMedicine:"Medicine → hospital",aMedOut:"Medicine → moved out",aReset:"Unassigned amount reset",delete:"Delete",deleteHint:"Deleting a wrong entry adds the deaths back to the total and moves the medicine fish back to where they came from. (Entries from before a full recount are only removed from the list; the numbers do not change.)",settled:"recounted",confirmDelete:"Delete this entry?",aDelEntry:"Daily entry deleted",aFix:"Correction",outdated:"A new version is available. Reloading the page…",
+    curTotal:"Total fish now",dayTotal:"Total that day",
+    logTitle:"📝 Daily log (water temp · feed)",logBtn:"📝 Daily log",logShow:"Show to viewers",logHidden:"Hidden · admin only",noLog:"No entries yet",
+    logHint:"Saving the same date again updates that day. Empty boxes can stay empty.",temp:"🌡 Water temp (°C)",feed:"🍤 Feed",edit:"Edit",
+    aLog:"Daily log",aLogDel:"Daily log deleted",aLogShow:"Daily log shown",aLogHide:"Daily log hidden"},
 };
 const BLD_NAME = {ko:id=>id+"동", en:id=>"Building "+id};
 
@@ -378,7 +415,7 @@ async function ghRead(){
 }
 // Bump APP_VERSION whenever the saving rules change. A phone that still shows an older cached
 // copy of this page is then sent to the new page instead of saving with the old rules.
-const APP_VERSION = 5;
+const APP_VERSION = 6;
 function reloadIfOutdated(d){
   const v = d && d.appVersion || 0;
   if(v <= APP_VERSION) return false;
@@ -393,6 +430,7 @@ async function commit(mutator, message){
     if(reloadIfOutdated(fresh)) throw new Error(t("outdated"));
     mutator(fresh);
     fresh.appVersion = APP_VERSION;
+    const td = today(); if(fresh.daily && fresh.daily[td]) fresh.daily[td].total = farmTotal(fresh);
     fresh.updated = new Date().toISOString();
     fresh.log = (fresh.log||[]).slice(-300);
     try{
@@ -512,13 +550,15 @@ function render(){
   const hosp = all.filter(x=>x.hospital && x.status!=="empty");
   const hospTxt = fmt(hosp.reduce((a,x)=>a+x.count,0)) + (hosp.some(x=>x.unknown)?"+?":"");
   $("#dailyList").innerHTML = `<div class="rtiles">
+      <div class="rtile"><b>${fmt(farmTotal(data))}</b><span>🐟 ${t("curTotal")}</span></div>
       <div class="rtile"><b class="d-neg">${fmt(dToday)}</b><span>💀 ${t("todayDied")}</span></div>
       <div class="rtile"><b class="d-neg">${fmt(dMonth)}</b><span>💀 ${t("monthDied")}</span></div>
       <div class="rtile"><b>${fmt(dAll)}</b><span>💀 ${t("allDied")}</span></div>
       <div class="rtile"><b>${hospTxt}</b><span>🏥 ${t("inHosp")}</span></div></div>` +
-    (daysAll.length ? `<table class="dtab"><thead><tr><th>${t("date")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("colMed")}</th><th>${t("colHosp")}</th><th>${t("totalFish")}</th>${isAdmin()?"<th></th>":""}</tr></thead><tbody>${
+    (daysAll.length ? `<div class="tscroll"><table class="dtab"><thead><tr><th>${t("date")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("colMed")}</th><th>${t("colHosp")}</th><th>${t("dayTotal")}</th>${isAdmin()?"<th></th>":""}</tr></thead><tbody>${
       daysAll.slice(0,31).map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td><td class="d-neg">${fmt(r.died)}</td><td>${fmt(r.med)}</td><td class="muted">${Object.keys(r.medTo||{}).filter(k=>r.medTo[k]>0).join(", ")||"–"}</td><td><b>${r.total!=null?fmt(r.total):"–"}</b></td>${isAdmin()?`<td><button class="btn ghost" style="padding:4px 8px" data-day="${d}" aria-label="${t("delete")}">🗑</button></td>`:""}</tr>`).join("")
-    }</tbody></table>` : `<p class="muted">${t("noDaily")}</p>`);
+    }</tbody></table></div>` : `<p class="muted">${t("noDaily")}</p>`);
+  renderLog();
 
   const log = (data.log||[]).slice().reverse().slice(0,40);
   $("#log").innerHTML = log.length ? log.map(logLine).join("") : `<li class="muted">${t("noHistory")}</li>`;
@@ -532,7 +572,7 @@ function fmtDate(s){
 function logLine(e){
   const delta = e.to!=null && e.from!=null ? e.to-e.from : null;
   const dtxt = delta ? `<span class="${delta<0?"d-neg":"d-pos"}">${delta>0?"+":""}${fmt(delta)}</span>` : "";
-  const extra = [e.died?t("rDied")+" "+fmt(e.died):"", e.med?t("rMedicine")+" "+fmt(e.med):"", e.reason?t("r"+e.reason):"", e.other?("#"+e.other):"", e.note?("“"+esc(e.note)+"”"):""].filter(Boolean).join(" · ");
+  const extra = [e.action&&e.action.startsWith("Log")&&e.date?e.date.slice(5).replace("-","."):"", e.died?t("rDied")+" "+fmt(e.died):"", e.med?t("rMedicine")+" "+fmt(e.med):"", e.reason?t("r"+e.reason):"", e.other?("#"+e.other):"", e.note?("“"+esc(e.note)+"”"):""].filter(Boolean).join(" · ");
   return `<li><span class="when">${fmtDate(e.t).slice(5)}</span><span class="what"><b>${e.tank==="ALL"?t("farmAll"):e.tank}</b> ${t("a"+e.action)} ${dtxt} ${e.to!=null?"→ "+fmt(e.to):""}${extra?` <span class="muted">${extra}</span>`:""}</span></li>`;
 }
 
@@ -766,6 +806,70 @@ function openDaily(){
   };
 }
 
+/* ===================== DAILY LOG (water temperature · feed) ===================== */
+// Fields of the handwritten daily notebook. Rename or add fields here.
+const LOG_FIELDS = [
+  {k:"t1", g:"temp", ko:"아침", en:"Morning", step:"0.1"},
+  {k:"t2", g:"temp", ko:"점심", en:"Lunch", step:"0.1"},
+  {k:"t3", g:"temp", ko:"저녁", en:"Evening", step:"0.1"},
+  {k:"t4", g:"temp", ko:"9시", en:"9 pm", step:"0.1"},
+  {k:"v",  g:"other", ko:"V", en:"V", step:"any"},
+  {k:"raw", g:"feed", ko:"생사료 갯수", en:"Raw feed", step:"1"},
+  {k:"made", g:"feed", ko:"만든 갯수", en:"Made", step:"1"},
+  {k:"eaten", g:"feed", ko:"먹은 갯수", en:"Eaten", step:"1"},
+];
+const fLabel = f => lang==="ko" ? f.ko : f.en;
+const logVisible = () => (data.settings?.showLog ?? true);
+function renderLog(){
+  const admin = isAdmin(), show = logVisible();
+  $("#logPanel").hidden = !admin && !show;
+  $("#logSwitch").hidden = !admin; $("#logShow").checked = show;
+  $("#logHiddenBadge").hidden = !(admin && !show);
+  const days = Object.entries(data.dailyLog||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,31);
+  if(!days.length){ $("#logList").innerHTML = `<p class="muted">${t("noLog")}</p>`; return; }
+  const temps = LOG_FIELDS.filter(f=>f.g==="temp"), rest = LOG_FIELDS.filter(f=>f.g!=="temp");
+  const v = x => x==null || x==="" ? "–" : String(x);
+  $("#logList").innerHTML = `<div class="tscroll"><table class="dtab"><thead>
+    <tr><th></th><th colspan="${temps.length}" style="text-align:center">${t("temp")}</th><th colspan="${rest.length}"></th>${admin?"<th></th>":""}</tr>
+    <tr><th>${t("date")}</th>${LOG_FIELDS.map(f=>`<th>${esc(fLabel(f))}</th>`).join("")}${admin?"<th></th>":""}</tr></thead><tbody>${
+    days.map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td>${LOG_FIELDS.map(f=>`<td>${esc(v(r[f.k]))}</td>`).join("")}${admin?`<td><button class="btn ghost" style="padding:4px 8px" data-logday="${d}">✏️</button></td>`:""}</tr>${r.note?`<tr><td></td><td colspan="${LOG_FIELDS.length+(admin?1:0)}" class="muted" style="text-align:left">📝 ${esc(r.note)}</td></tr>`:""}`).join("")
+  }</tbody></table></div>`;
+}
+function openLogForm(date){
+  openId = null;
+  date = date || today();
+  const r = data.dailyLog?.[date] || {};
+  const inp = f => `<div><label>${esc(fLabel(f))}</label><input type="number" inputmode="decimal" step="${f.step}" data-lk="${f.k}" value="${r[f.k] ?? ""}"></div>`;
+  $("#sheet").innerHTML = `<div class="grab"></div>
+    <div class="shead"><h2>${t("logTitle")}</h2><button class="x" data-act="close">✕</button></div>
+    <div class="sec" style="border:0;margin-top:2px;padding-top:2px"><label>${t("date")}</label><input id="lDate" type="date" value="${date}" style="width:auto"></div>
+    <p class="muted" style="margin:4px 0">${t("logHint")}</p>
+    <div class="sec"><label>${t("temp")}</label><div class="lgrid">${LOG_FIELDS.filter(f=>f.g==="temp").map(inp).join("")}</div></div>
+    <div class="sec"><label>${t("feed")}</label><div class="lgrid">${LOG_FIELDS.filter(f=>f.g!=="temp").map(inp).join("")}</div></div>
+    <div class="sec"><label>${t("note")}</label><textarea id="lNote" style="min-height:44px">${esc(r.note||"")}</textarea></div>
+    <div class="sec"><button class="btn block" id="lSave">${t("setBtn")}</button>
+      ${data.dailyLog?.[date] ? `<button class="btn ghost block" style="margin-top:8px" id="lDel">🗑 ${t("delete")}</button>` : ""}</div>`;
+  document.body.classList.add("sheet-open");
+  $("#lDate").onchange = e => openLogForm(e.target.value);
+  $("#lSave").onclick = async () => {
+    const d = $("#lDate").value || today(), rec = {};
+    document.querySelectorAll("[data-lk]").forEach(i => { const n = parseFloat(i.value); if(Number.isFinite(n)) rec[i.dataset.lk] = n; });
+    const note = $("#lNote").value.trim(); if(note) rec.note = note;
+    if(!Object.keys(rec).length) return toast(t("invalid"), true);
+    await saveData(f => { (f.dailyLog ||= {})[d] = rec; (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:"Log", date:d}); }, `Daily log ${d}`);
+  };
+  if($("#lDel")) $("#lDel").onclick = async () => {
+    if(!confirm(date + " — " + t("confirmDelete"))) return;
+    await saveData(f => { if(f.dailyLog) delete f.dailyLog[date]; (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:"LogDel", date}); }, `Delete daily log ${date}`);
+  };
+}
+async function saveData(mut, msg){
+  busy(true);
+  try{ data = await commit(mut, msg); toast(t("saved")); closeSheet(); render(); }
+  catch(err){ toast(t("err")+": "+err.message, true); render(); }
+  finally{ busy(false); }
+}
+
 /* ===================== DELETE A DAILY ENTRY ===================== */
 function dayEntries(r){ return r.entries && r.entries.length ? r.entries : [{id:"*", died:r.died||0, meds:[]}]; }
 function openDay(date){
@@ -847,6 +951,7 @@ function busy(on){ $("#busy").classList.toggle("on",on); }
 document.addEventListener("click", e => {
   const tank = e.target.closest(".tank"); if(tank){ openSheet(tank.dataset.id); return; }
   const a = e.target.closest("[data-act]"); if(a){ act(a.dataset.act); return; }
+  const lday = e.target.closest("[data-logday]"); if(lday){ openLogForm(lday.dataset.logday); return; }
   const day = e.target.closest("[data-day]"); if(day){ openDay(day.dataset.day); return; }
   const del = e.target.closest("[data-del]"); if(del){ delEntry(del.dataset.date, del.dataset.del); return; }
   const q = e.target.closest("[data-q]"); if(q){ $("#inReduce").value = q.dataset.q; return; }
@@ -858,6 +963,9 @@ document.addEventListener("keydown", e => { if(e.key==="Escape") closeSheet(); }
 $("#adminBtn").onclick = () => isAdmin() ? openSetup() : openLogin();
 $("#adminOff").onclick = () => { LSset("ff_login",null); closeSheet(); render(); };
 $("#dailyBtn").onclick = () => data && openDaily();
+$("#logBtn").onclick = () => data && openLogForm();
+$("#logShow").onchange = e => { const on = e.target.checked;
+  saveData(f => { (f.settings ||= {}).showLog = on; (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:on?"LogShow":"LogHide"}); }, on ? "Show daily log" : "Hide daily log"); };
 $("#lang").onchange = e => { lang = e.target.value; LSset("ff_lang",lang); render(); };
 $("#refresh").onclick = e => { e.preventDefault(); load(); };
 setInterval(() => { if(!document.hidden && !openId) load(); }, 60000);   // auto refresh every minute
