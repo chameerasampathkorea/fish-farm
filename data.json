@@ -1,6 +1,6 @@
 {
   "farm": "더조은수산",
-  "updated": "2026-11-27T02:55:08.502Z",
+  "updated": "2026-11-27T02:55:12.354Z",
   "tanks": {
     "111": {
       "count": 1415,
@@ -388,6 +388,11 @@
       "t": "2026-11-27T02:55:08.491Z",
       "tank": "ALL",
       "action": "LogHide"
+    },
+    {
+      "t": "2026-11-27T02:55:12.354Z",
+      "tank": "ALL",
+      "action": "LogShow"
     }
   ],
   "daily": {
@@ -459,7 +464,7 @@
   },
   "appVersion": 6,
   "settings": {
-    "showLog": false
+    "showLog": true
   },
   "dailyLog": {
     "2026-11-21": {
