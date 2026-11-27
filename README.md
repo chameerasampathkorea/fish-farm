@@ -22,7 +22,11 @@ The boss opens the link on a phone to see it. The admin updates it from a phone.
     - mark it 🏥 **hospital tank**, or give it a name label (for example 치어 or 격리)
     - restock, add fish, move fish to another tank, set the exact count, or add a note
 
+- **📄 Report / 보고서** (for everyone): pick a month or a year. The report shows the total, deaths, medicine, water temperature and feed, and every tank. Download it as **PDF** or as an **image**.
+- **📝 Daily log / 사육 일지** (admin): water temperature (morning, lunch, evening, 9 pm), V, raw feed, made and eaten counts. The admin can show or hide it for viewers.
+
 Every change is saved as a commit to `data.json` in this repo, so a full history is kept.
+In addition, the first save of each day writes a full copy to `backups/YYYY-MM-DD.json`. The admin can also download a backup file with **💾 Backup**.
 
 ---
 

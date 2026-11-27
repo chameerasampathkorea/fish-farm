@@ -155,6 +155,47 @@ textarea{min-height:60px;resize:vertical}
 .phead h3{margin:0}
 .tscroll{overflow-x:auto}
 .tscroll th{white-space:nowrap;font-size:11.5px}
+/* daily log cards */
+.lcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.lcard{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.lhead{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.lhead b{font-size:16px}
+.lhead .btn{margin-left:auto;padding:3px 8px}
+.ltemps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.ltemp{background:var(--card);border-radius:8px;padding:5px 4px;text-align:center;border:1px solid var(--line)}
+.ltemp b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+.ltemp span,.lfeed span{font-size:11px;color:var(--muted)}
+.lfeeds{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.lfeed{text-align:center}
+.lfeed b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
+.lnote{font-size:12.5px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
+.lmore{margin-top:10px}
+/* report overlay (always light, A4 width for PDF / image) */
+.rpt{position:fixed;inset:0;z-index:30;background:#5b6770;overflow:auto;-webkit-overflow-scrolling:touch}
+.rbar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;background:#13232d;color:#fff}
+.rbar select,.rbar input{width:auto;padding:7px 8px;font-size:15px;background:#fff;color:#122430;border-radius:8px;border:0}
+.rbar .btn{padding:8px 12px;font-size:14px}
+.rbar .x{margin-left:auto;background:#fff;color:#122430}
+.rwrap{padding:14px;overflow-x:auto}
+.rpage{width:794px;margin:0 auto;background:#fff;color:#122430;padding:34px 38px;font-size:12px;line-height:1.45;box-shadow:0 4px 24px rgba(0,0,0,.3)}
+.rpage h1{font-size:22px;margin:0}
+.rpage h2{font-size:14px;margin:20px 0 8px;padding-bottom:4px;border-bottom:2px solid #0b5d7a;color:#0b5d7a}
+.rpage .rsub{color:#5d7180;font-size:12px;margin-top:2px}
+.rpage .rhead{display:flex;align-items:center;gap:14px;border-bottom:3px solid #0b5d7a;padding-bottom:12px}
+.rpage .rhead img{width:70px;height:50px;object-fit:cover;border-radius:6px}
+.rkpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.rkpi{border:1px solid #d6e0e6;border-radius:8px;padding:8px 10px}
+.rkpi b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
+.rkpi span{font-size:11px;color:#5d7180}
+.rtab{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums}
+.rtab th{background:#eef4f7;color:#3b5361;font-weight:700;padding:5px 4px;border:1px solid #d6e0e6;text-align:center}
+.rtab td{padding:4px;border:1px solid #e2e9ed;text-align:right}
+.rtab td:first-child{text-align:left;white-space:nowrap}
+.rtab tr.sum td{font-weight:700;background:#f6f9fa}
+.rtanks{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rtanks table td{text-align:left}
+.rneg{color:#c0392b}
+.rfoot{margin-top:20px;color:#8a979f;font-size:10.5px;text-align:right}
 .mini-log{font-size:12.5px;margin:6px 0 0;padding:0;list-style:none;color:var(--muted)}
 .mini-log li{padding:3px 0}
 
@@ -221,12 +262,13 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 </header>
 
 <main>
-  <div class="adminbar"><span>🔧</span><span data-t="adminOn" style="flex:1;min-width:140px"></span><button class="btn red" id="dailyBtn" data-t="daily"></button><button class="btn" id="logBtn" data-t="logBtn"></button><button class="btn ghost" id="adminOff" data-t="logout"></button></div>
+  <div class="adminbar"><span>🔧</span><span data-t="adminOn" style="flex:1;min-width:140px"></span><button class="btn red" id="dailyBtn" data-t="daily"></button><button class="btn" id="logBtn" data-t="logBtn"></button><button class="btn ghost" id="bkBtn" data-t="bkBtn"></button><button class="btn ghost" id="adminOff" data-t="logout"></button></div>
   <div class="toolbar">
     <button class="chip on" data-f="all" data-t="fAll"></button>
     <button class="chip" data-f="ready">🚚 <span data-t="fReady"></span></button>
     <button class="chip" data-f="empty">⬜ <span data-t="fEmpty"></span></button>
     <button class="chip" data-f="hospital">🏥 <span data-t="fHosp"></span></button>
+    <button class="chip" id="rptBtn">📄 <span data-t="rptBtn"></span></button>
     <div class="legend">
       <span><i class="sw" style="background:linear-gradient(160deg,var(--pool1),var(--pool2))"></i><span data-t="lgActive"></span></span>
       <span><i class="sw" style="background:var(--pool2);outline:2px solid var(--ready)"></i><span data-t="lgReady"></span></span>
@@ -271,6 +313,15 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   </div>
 </main>
 
+<div class="rpt" id="rpt" hidden>
+  <div class="rbar">
+    <select id="rType"><option value="m" data-t="rMonth"></option><option value="y" data-t="rYear"></option></select>
+    <input id="rMonthIn" type="month"><select id="rYearIn"></select>
+    <button class="btn green" id="rPdf">⬇ PDF</button><button class="btn" id="rImg">⬇ <span data-t="rImage"></span></button>
+    <button class="x" id="rClose" aria-label="close">✕</button>
+  </div>
+  <div class="rwrap"><div class="rpage" id="rpage"></div></div>
+</div>
 <div class="backdrop" id="backdrop"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
 <div class="toast" id="toast"></div>
@@ -331,7 +382,12 @@ const T = {
     curTotal:"현재 총 마리수",dayTotal:"그날 총 마리수",
     logTitle:"📝 사육 일지 (수온 · 사료)",logBtn:"📝 사육 일지",logShow:"보스에게 표시",logHidden:"숨김 · 관리자만 보임",noLog:"아직 기록이 없습니다",
     logHint:"같은 날짜를 다시 저장하면 그 날짜 기록이 수정됩니다. 빈 칸은 비워 두어도 됩니다.",temp:"🌡 수온 (°C)",feed:"🍤 사료",edit:"수정",
-    aLog:"사육 일지",aLogDel:"사육 일지 삭제",aLogShow:"사육 일지 표시",aLogHide:"사육 일지 숨김"},
+    aLog:"사육 일지",rptBtn:"보고서",rMonth:"월간",rYear:"연간",rImage:"이미지",rTitleM:"월간 사육 보고서",rTitleY:"연간 사육 보고서",
+    rKpiEnd:"기간 말 총 마리수",rKpiDied:"기간 폐사",rKpiMed:"투약 → 병원",rKpiTemp:"평균 수온",
+    rSecDaily:"일별 기록",rSecMonthly:"월별 기록",rSecTanks:"수조 현황 (보고서 생성 시점)",rSecFeed:"사료 · 수온 요약",
+    rDay:"일자",rMon:"월",rAvgTemp:"평균 수온",rMinMax:"최저 / 최고",rSum:"합계",rNoData:"이 기간에는 기록이 없습니다.",
+    rMade:"보고서 생성",rWait:"만드는 중…",bkBtn:"💾 백업",bkDone:"백업 파일을 저장했습니다",
+    wd:"일,월,화,수,목,금,토",feedLbl:"사료",aBackup:"일일 백업",aLogDel:"사육 일지 삭제",aLogShow:"사육 일지 표시",aLogHide:"사육 일지 숨김"},
   en:{subtitle:"Tank map · Stock status",admin:"Admin",totalFish:"Total fish",activeTanks:"Stocked tanks",readyTanks:"Delivery ready",emptyTanks:"Empty tanks",
     lastUpdate:"Last update",refresh:"Refresh",fAll:"All",fReady:"Ready",fEmpty:"Empty",lgActive:"Stocked",lgReady:"Delivery ready",lgEmpty:"Empty",
     history:"Change history",noHistory:"No changes yet",origPlan:"Original floor plan photo",origPlanNote:"Data entered from the handwritten sheet of 2026-11-13.",
@@ -363,7 +419,12 @@ const T = {
     curTotal:"Total fish now",dayTotal:"Total that day",
     logTitle:"📝 Daily log (water temp · feed)",logBtn:"📝 Daily log",logShow:"Show to viewers",logHidden:"Hidden · admin only",noLog:"No entries yet",
     logHint:"Saving the same date again updates that day. Empty boxes can stay empty.",temp:"🌡 Water temp (°C)",feed:"🍤 Feed",edit:"Edit",
-    aLog:"Daily log",aLogDel:"Daily log deleted",aLogShow:"Daily log shown",aLogHide:"Daily log hidden"},
+    aLog:"Daily log",rptBtn:"Report",rMonth:"Monthly",rYear:"Yearly",rImage:"Image",rTitleM:"Monthly farm report",rTitleY:"Yearly farm report",
+    rKpiEnd:"Total fish at period end",rKpiDied:"Deaths in period",rKpiMed:"Medicine → hospital",rKpiTemp:"Average water temp",
+    rSecDaily:"Day by day",rSecMonthly:"Month by month",rSecTanks:"Tanks (when this report was made)",rSecFeed:"Feed & water temp summary",
+    rDay:"Day",rMon:"Month",rAvgTemp:"Avg temp",rMinMax:"Min / max",rSum:"Total",rNoData:"No records in this period.",
+    rMade:"Report made",rWait:"Making…",bkBtn:"💾 Backup",bkDone:"Backup file saved",
+    wd:"Sun,Mon,Tue,Wed,Thu,Fri,Sat",feedLbl:"Feed",aBackup:"Daily backup",aLogDel:"Daily log deleted",aLogShow:"Daily log shown",aLogHide:"Daily log hidden"},
 };
 const BLD_NAME = {ko:id=>id+"동", en:id=>"Building "+id};
 
@@ -437,9 +498,30 @@ async function commit(mutator, message){
       await gh("contents/data.json", { method:"PUT", body:JSON.stringify({
         message, sha, branch:cfg().branch, content:b64enc(JSON.stringify(fresh,null,2)+"\n")
       })});
+      await backupToday(fresh);
       return fresh;
     }catch(e){ if(!/^409|^422/.test(e.message) || attempt==2) throw e; }
   }
+}
+
+// Once a day (first save of the day) a full copy goes to backups/YYYY-MM-DD.json in the repo.
+async function backupToday(fresh){
+  const d = today(); if(LS("ff_backup") === d) return;
+  const path = `contents/backups/${d}.json`;
+  try{ await gh(`${path}?ref=${encodeURIComponent(cfg().branch)}`); LSset("ff_backup", d); return; }
+  catch(e){ if(!/^404/.test(e.message)) return; }
+  try{
+    await gh(path, { method:"PUT", body:JSON.stringify({ message:`Backup ${d}`, branch:cfg().branch, content:b64enc(JSON.stringify(fresh,null,2)+"\n") }) });
+    LSset("ff_backup", d);
+  }catch(e){ /* backup is best effort; the main save already worked */ }
+}
+function downloadBackup(){
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  saveBlob(blob, `fish-farm-backup-${today()}.json`); toast(t("bkDone"));
+}
+function saveBlob(blob, name){
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
 }
 
 /* ===================== LOAD ===================== */
@@ -820,20 +902,29 @@ const LOG_FIELDS = [
 ];
 const fLabel = f => lang==="ko" ? f.ko : f.en;
 const logVisible = () => (data.settings?.showLog ?? true);
+const weekday = d => t("wd").split(",")[new Date(d+"T00:00:00").getDay()];
+const num1 = x => x==null || x==="" ? "–" : String(x);
+function logCard(d, r, admin){
+  const temps = LOG_FIELDS.filter(f=>f.g==="temp"), rest = LOG_FIELDS.filter(f=>f.g!=="temp");
+  return `<article class="lcard">
+    <div class="lhead"><b>${d.slice(5).replace("-",".")}</b><span class="muted">${weekday(d)}</span>${admin?`<button class="btn ghost" data-logday="${d}" aria-label="${t("edit")}">✏️</button>`:""}</div>
+    <div class="ltemps">${temps.map(f=>`<div class="ltemp"><b>${typeof r[f.k]==="number"?r[f.k].toFixed(1)+"°":"–"}</b><span>${esc(fLabel(f))}</span></div>`).join("")}</div>
+    <div class="lfeeds">${rest.map(f=>`<div class="lfeed"><b>${esc(num1(r[f.k]))}</b><span>${esc(fLabel(f))}</span></div>`).join("")}</div>
+    ${r.note?`<div class="lnote">📝 ${esc(r.note)}</div>`:""}
+  </article>`;
+}
+let logAll = false;
 function renderLog(){
   const admin = isAdmin(), show = logVisible();
   $("#logPanel").hidden = !admin && !show;
   $("#logSwitch").hidden = !admin; $("#logShow").checked = show;
   $("#logHiddenBadge").hidden = !(admin && !show);
-  const days = Object.entries(data.dailyLog||{}).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,31);
+  const days = Object.entries(data.dailyLog||{}).sort((a,b)=>b[0].localeCompare(a[0]));
   if(!days.length){ $("#logList").innerHTML = `<p class="muted">${t("noLog")}</p>`; return; }
-  const temps = LOG_FIELDS.filter(f=>f.g==="temp"), rest = LOG_FIELDS.filter(f=>f.g!=="temp");
-  const v = x => x==null || x==="" ? "–" : String(x);
-  $("#logList").innerHTML = `<div class="tscroll"><table class="dtab"><thead>
-    <tr><th></th><th colspan="${temps.length}" style="text-align:center">${t("temp")}</th><th colspan="${rest.length}"></th>${admin?"<th></th>":""}</tr>
-    <tr><th>${t("date")}</th>${LOG_FIELDS.map(f=>`<th>${esc(fLabel(f))}</th>`).join("")}${admin?"<th></th>":""}</tr></thead><tbody>${
-    days.map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td>${LOG_FIELDS.map(f=>`<td>${esc(v(r[f.k]))}</td>`).join("")}${admin?`<td><button class="btn ghost" style="padding:4px 8px" data-logday="${d}">✏️</button></td>`:""}</tr>${r.note?`<tr><td></td><td colspan="${LOG_FIELDS.length+(admin?1:0)}" class="muted" style="text-align:left">📝 ${esc(r.note)}</td></tr>`:""}`).join("")
-  }</tbody></table></div>`;
+  const shown = logAll ? days.slice(0,62) : days.slice(0,6);
+  $("#logList").innerHTML = `<div class="lcards">${shown.map(([d,r])=>logCard(d,r,admin)).join("")}</div>` +
+    (days.length > 6 ? `<button class="btn ghost lmore" id="logMore">${logAll?"▲":"▼"} ${days.length} </button>` : "");
+  if($("#logMore")) $("#logMore").onclick = () => { logAll = !logAll; renderLog(); };
 }
 function openLogForm(date){
   openId = null;
@@ -867,6 +958,110 @@ async function saveData(mut, msg){
   busy(true);
   try{ data = await commit(mut, msg); toast(t("saved")); closeSheet(); render(); }
   catch(err){ toast(t("err")+": "+err.message, true); render(); }
+  finally{ busy(false); }
+}
+
+/* ===================== MONTH / YEAR REPORT (PDF · image) ===================== */
+const H2C = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+const JSPDF = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+function loadScript(src){
+  return new Promise((res, rej) => {
+    if(document.querySelector(`script[src="${src}"]`)) return res();
+    const el = document.createElement("script"); el.src = src; el.onload = res; el.onerror = () => rej(new Error("load failed")); document.head.appendChild(el);
+  });
+}
+const avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : null;
+const f1 = x => x==null ? "–" : (Math.round(x*10)/10).toFixed(1);
+function periodStats(prefix){
+  const daily = Object.entries(data.daily||{}).filter(([d])=>d.startsWith(prefix)).sort((a,b)=>a[0].localeCompare(b[0]));
+  const logs = Object.entries(data.dailyLog||{}).filter(([d])=>d.startsWith(prefix)).sort((a,b)=>a[0].localeCompare(b[0]));
+  const temps = logs.flatMap(([,r])=>["t1","t2","t3","t4"].map(k=>r[k]).filter(v=>typeof v==="number"));
+  const sumK = k => logs.reduce((a,[,r])=>a+(typeof r[k]==="number"?r[k]:0),0);
+  const withTotal = daily.filter(([,r])=>r.total!=null);
+  let endTotal = withTotal.length ? withTotal[withTotal.length-1][1].total : null;
+  if(today().startsWith(prefix)) endTotal = farmTotal(data);
+  return { daily, logs, died:daily.reduce((a,[,r])=>a+(r.died||0),0), med:daily.reduce((a,[,r])=>a+(r.med||0),0),
+    tAvg:avg(temps), tMin:temps.length?Math.min(...temps):null, tMax:temps.length?Math.max(...temps):null,
+    raw:sumK("raw"), made:sumK("made"), eaten:sumK("eaten"), endTotal };
+}
+function buildReport(){
+  const type = $("#rType").value, prefix = type==="m" ? $("#rMonthIn").value : $("#rYearIn").value;
+  const st = periodStats(prefix);
+  const title = type==="m" ? t("rTitleM") : t("rTitleY");
+  const label = type==="m" ? (lang==="ko" ? `${prefix.slice(0,4)}년 ${+prefix.slice(5)}월` : prefix) : (lang==="ko" ? `${prefix}년` : prefix);
+  const now = fmtDate(new Date().toISOString());
+  let rows = "";
+  if(type==="m"){
+    const days = new Set([...st.daily.map(([d])=>d), ...st.logs.map(([d])=>d)]);
+    const D = Object.fromEntries(st.daily), L = Object.fromEntries(st.logs);
+    rows = [...days].sort().map(d => { const r = D[d]||{}, l = L[d]||{};
+      return `<tr><td>${d.slice(5).replace("-",".")} (${weekday(d)})</td><td class="rneg">${r.died?fmt(r.died):""}</td><td>${r.med?fmt(r.med):""}</td>
+        ${["t1","t2","t3","t4"].map(k=>`<td>${l[k]??""}</td>`).join("")}<td>${l.v??""}</td><td>${l.raw??""}</td><td>${l.made??""}</td><td>${l.eaten??""}</td>
+        <td>${r.total!=null?fmt(r.total):""}</td></tr>`; }).join("");
+    rows = rows ? `<table class="rtab"><thead><tr><th rowspan="2">${t("rDay")}</th><th rowspan="2">💀 ${t("rDied")}</th><th rowspan="2">💊 ${t("colMed")}</th>
+        <th colspan="4">${t("temp")}</th><th rowspan="2">V</th><th colspan="3">${t("feedLbl")}</th><th rowspan="2">${t("dayTotal")}</th></tr>
+        <tr>${LOG_FIELDS.filter(f=>f.g==="temp").map(f=>`<th>${esc(fLabel(f))}</th>`).join("")}${LOG_FIELDS.filter(f=>f.g==="feed").map(f=>`<th>${esc(fLabel(f))}</th>`).join("")}</tr></thead>
+        <tbody>${rows}<tr class="sum"><td>${t("rSum")}</td><td class="rneg">${fmt(st.died)}</td><td>${fmt(st.med)}</td><td colspan="4">${t("rAvgTemp")} ${f1(st.tAvg)}°</td><td></td>
+        <td>${fmt(st.raw)}</td><td>${fmt(st.made)}</td><td>${fmt(st.eaten)}</td><td>${st.endTotal!=null?fmt(st.endTotal):""}</td></tr></tbody></table>` : "";
+  } else {
+    rows = Array.from({length:12}, (_,i) => { const mp = `${prefix}-${String(i+1).padStart(2,"0")}`, m = periodStats(mp);
+      if(!m.daily.length && !m.logs.length) return "";
+      return `<tr><td>${lang==="ko"?`${i+1}월`:mp}</td><td class="rneg">${fmt(m.died)}</td><td>${fmt(m.med)}</td><td>${f1(m.tAvg)}</td><td>${f1(m.tMin)} / ${f1(m.tMax)}</td>
+        <td>${fmt(m.raw)}</td><td>${fmt(m.made)}</td><td>${fmt(m.eaten)}</td><td>${m.endTotal!=null?fmt(m.endTotal):""}</td></tr>`; }).join("");
+    rows = rows ? `<table class="rtab"><thead><tr><th>${t("rMon")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("colMed")}</th><th>${t("rAvgTemp")}</th><th>${t("rMinMax")}</th>
+        ${LOG_FIELDS.filter(f=>f.g==="feed").map(f=>`<th>${esc(fLabel(f))}</th>`).join("")}<th>${t("rKpiEnd")}</th></tr></thead>
+        <tbody>${rows}<tr class="sum"><td>${t("rSum")}</td><td class="rneg">${fmt(st.died)}</td><td>${fmt(st.med)}</td><td>${f1(st.tAvg)}</td><td>${f1(st.tMin)} / ${f1(st.tMax)}</td>
+        <td>${fmt(st.raw)}</td><td>${fmt(st.made)}</td><td>${fmt(st.eaten)}</td><td>${st.endTotal!=null?fmt(st.endTotal):""}</td></tr></tbody></table>` : "";
+  }
+  const tanks = LAYOUT.map(b => { const ids = b.tanks.filter(x=>x.id).map(x=>x.id).sort();
+    const tot = ids.reduce((a,id)=>a+(tankInfo(id).status==="empty"?0:tankInfo(id).count),0);
+    return `<div><table class="rtab"><thead><tr><th colspan="2">${esc(BLD_NAME[lang](b.id))} · ${fmt(tot)}</th></tr></thead><tbody>${
+      ids.map(id=>{ const d = tankInfo(id); return `<tr><td>${id}${d.hospital?" 🏥":""}${d.status==="ready"?" 🚚":""}</td><td style="text-align:right">${cntText(d) ?? t("emptyShort")}</td></tr>`; }).join("")}</tbody></table></div>`; }).join("");
+  $("#rpage").innerHTML = `<div class="rhead"><img src="images/fish.jpg" alt=""><div><h1>${esc(data.farm||"")} · ${title}</h1><div class="rsub">${label} · ${t("speciesName")}</div></div></div>
+    <div class="rkpis">
+      <div class="rkpi"><b>${st.endTotal!=null?fmt(st.endTotal):"–"}</b><span>🐟 ${t("rKpiEnd")}</span></div>
+      <div class="rkpi"><b class="rneg">${fmt(st.died)}</b><span>💀 ${t("rKpiDied")}</span></div>
+      <div class="rkpi"><b>${fmt(st.med)}</b><span>💊 ${t("rKpiMed")}</span></div>
+      <div class="rkpi"><b>${f1(st.tAvg)}°</b><span>🌡 ${t("rKpiTemp")} (${f1(st.tMin)}–${f1(st.tMax)})</span></div></div>
+    <h2>${type==="m"?t("rSecDaily"):t("rSecMonthly")}</h2>${rows || `<p>${t("rNoData")}</p>`}
+    <h2>${t("rSecTanks")}</h2><div class="rtanks">${tanks}</div>
+    <div class="rfoot">${t("rMade")}: ${now}</div>`;
+}
+function openReport(){
+  const td = today();
+  $("#rMonthIn").value = td.slice(0,7);
+  const years = new Set([td.slice(0,4), ...Object.keys(data.daily||{}).map(d=>d.slice(0,4)), ...Object.keys(data.dailyLog||{}).map(d=>d.slice(0,4))]);
+  $("#rYearIn").innerHTML = [...years].sort().reverse().map(y=>`<option>${y}</option>`).join("");
+  syncReportInputs(); buildReport();
+  $("#rpt").hidden = false; document.body.style.overflow = "hidden"; fitReport();
+}
+// Show the A4-wide page shrunk to fit a phone screen (the PDF / image are made at full size).
+function fitReport(){ $("#rpage").style.zoom = Math.min(1, (innerWidth - 28) / 794); }
+window.addEventListener("resize", () => { if(!$("#rpt").hidden) fitReport(); });
+function syncReportInputs(){ const m = $("#rType").value==="m"; $("#rMonthIn").hidden = !m; $("#rYearIn").hidden = m; }
+function closeReport(){ $("#rpt").hidden = true; document.body.style.overflow = ""; }
+async function reportCanvas(){
+  await loadScript(H2C);
+  const el = $("#rpage"), z = el.style.zoom; el.style.zoom = 1;
+  try{ return await html2canvas(el, { scale:2, backgroundColor:"#ffffff", useCORS:true, windowWidth:900 }); }
+  finally{ el.style.zoom = z; }
+}
+function reportName(ext){ return `report-${$("#rType").value==="m"?$("#rMonthIn").value:$("#rYearIn").value}.${ext}`; }
+async function reportImage(){
+  busy(true);
+  try{ const c = await reportCanvas(); c.toBlob(b => saveBlob(b, reportName("png")), "image/png"); }
+  catch(e){ toast(t("err")+": "+e.message, true); }
+  finally{ busy(false); }
+}
+async function reportPdf(){
+  busy(true);
+  try{
+    const c = await reportCanvas(); await loadScript(JSPDF);
+    const pdf = new jspdf.jsPDF({ unit:"mm", format:"a4", orientation:"portrait" });
+    const W = 210, H = 297, imgH = c.height * W / c.width, img = c.toDataURL("image/jpeg", 0.92);
+    for(let y = 0, page = 0; y < imgH; y += H, page++){ if(page) pdf.addPage(); pdf.addImage(img, "JPEG", 0, -y, W, imgH); }
+    pdf.save(reportName("pdf"));
+  }catch(e){ toast(t("err")+": "+e.message, true); }
   finally{ busy(false); }
 }
 
@@ -959,11 +1154,16 @@ document.addEventListener("click", e => {
     filter = f.dataset.f; document.querySelectorAll("[data-f]").forEach(c=>c.classList.toggle("on",c===f)); render(); }
 });
 $("#backdrop").onclick = closeSheet;
-document.addEventListener("keydown", e => { if(e.key==="Escape") closeSheet(); });
+document.addEventListener("keydown", e => { if(e.key==="Escape"){ closeSheet(); closeReport(); } });
 $("#adminBtn").onclick = () => isAdmin() ? openSetup() : openLogin();
 $("#adminOff").onclick = () => { LSset("ff_login",null); closeSheet(); render(); };
 $("#dailyBtn").onclick = () => data && openDaily();
 $("#logBtn").onclick = () => data && openLogForm();
+$("#bkBtn").onclick = () => data && downloadBackup();
+$("#rptBtn").onclick = () => data && openReport();
+$("#rType").onchange = () => { syncReportInputs(); buildReport(); };
+$("#rMonthIn").onchange = buildReport; $("#rYearIn").onchange = buildReport;
+$("#rClose").onclick = closeReport; $("#rPdf").onclick = reportPdf; $("#rImg").onclick = reportImage;
 $("#logShow").onchange = e => { const on = e.target.checked;
   saveData(f => { (f.settings ||= {}).showLog = on; (f.log ||= []).push({t:new Date().toISOString(), tank:"ALL", action:on?"LogShow":"LogHide"}); }, on ? "Show daily log" : "Hide daily log"); };
 $("#lang").onchange = e => { lang = e.target.value; LSset("ff_lang",lang); render(); };
