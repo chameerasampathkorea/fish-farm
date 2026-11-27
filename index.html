@@ -165,7 +165,23 @@ textarea{min-height:60px;resize:vertical}
 .ltemp{background:var(--card);border-radius:8px;padding:5px 4px;text-align:center;border:1px solid var(--line)}
 .ltemp b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
 .ltemp span,.lfeed span{font-size:11px;color:var(--muted)}
-.lfeeds{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.lfeeds{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.lcards.one{grid-template-columns:minmax(0,520px)}
+/* gauges */
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:760px){ .gauges{grid-template-columns:1fr} }
+.gcard{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.gtitle{font-weight:700;font-size:14px;align-self:stretch;display:flex;justify-content:space-between;align-items:baseline}
+.gtitle small{font-weight:500;color:var(--muted);font-size:11.5px}
+.gface{height:190px;width:100%;display:flex;align-items:center;justify-content:center}
+.gface svg{height:100%;max-width:100%}
+.gsub{font-size:12px;color:var(--muted);text-align:center;min-height:17px}
+.seg-red{background:#a8180f;padding:10px;border-radius:10px;box-shadow:inset 0 0 0 2px #c92a1e,0 3px 10px rgba(0,0,0,.35);width:100%;max-width:250px}
+.seg-red .scr{background:#0b0303;border-radius:4px;padding:14px 12px}
+.seg-lcd{background:#2b2f31;padding:10px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.35);width:100%;max-width:200px}
+.seg-lcd .scr{background:linear-gradient(180deg,#c1c7bd,#a1a99e);border-radius:6px;padding:12px 12px;box-shadow:inset 0 2px 6px rgba(0,0,0,.35);position:relative}
+.seg-lcd .unit{position:absolute;right:10px;top:6px;font:700 15px system-ui;color:#1d2320}
+.seg-red svg,.seg-lcd svg{width:100%;height:auto;display:block}
 .lfeed{text-align:center}
 .lfeed b{display:block;font-size:15px;font-variant-numeric:tabular-nums}
 .lnote{font-size:12.5px;color:var(--muted);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
@@ -299,6 +315,11 @@ body.admin .adminbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     <div id="logList"></div>
   </div>
 
+  <div class="panel" id="gaugePanel">
+    <div class="phead"><h3 data-t="gTitle"></h3><span class="muted" id="gDate"></span></div>
+    <div class="gauges" id="gauges"></div>
+  </div>
+
   <div class="panel">
     <h3 data-t="history"></h3>
     <ul class="log" id="log"></ul>
@@ -382,7 +403,7 @@ const T = {
     curTotal:"현재 총 마리수",dayTotal:"그날 총 마리수",
     logTitle:"📝 사육 일지 (수온 · 사료)",logBtn:"📝 사육 일지",logShow:"보스에게 표시",logHidden:"숨김 · 관리자만 보임",noLog:"아직 기록이 없습니다",
     logHint:"같은 날짜를 다시 저장하면 그 날짜 기록이 수정됩니다. 빈 칸은 비워 두어도 됩니다.",temp:"🌡 수온 (°C)",feed:"🍤 사료",edit:"수정",
-    aLog:"사육 일지",rptBtn:"보고서",rMonth:"월간",rYear:"연간",rImage:"이미지",rTitleM:"월간 사육 보고서",rTitleY:"연간 사육 보고서",
+    aLog:"사육 일지",more:"더 보기",less:"접기",gTitle:"📟 계기판 (최근 기록)",gO2:"산소 탱크",gVolt:"전압",gTemp:"수온",gNoVal:"기록 없음",rptBtn:"보고서",rMonth:"월간",rYear:"연간",rImage:"이미지",rTitleM:"월간 사육 보고서",rTitleY:"연간 사육 보고서",
     rKpiEnd:"기간 말 총 마리수",rKpiDied:"기간 폐사",rKpiMed:"투약 → 병원",rKpiTemp:"평균 수온",
     rSecDaily:"일별 기록",rSecMonthly:"월별 기록",rSecTanks:"수조 현황 (보고서 생성 시점)",rSecFeed:"사료 · 수온 요약",
     rDay:"일자",rMon:"월",rAvgTemp:"평균 수온",rMinMax:"최저 / 최고",rSum:"합계",rNoData:"이 기간에는 기록이 없습니다.",
@@ -419,7 +440,7 @@ const T = {
     curTotal:"Total fish now",dayTotal:"Total that day",
     logTitle:"📝 Daily log (water temp · feed)",logBtn:"📝 Daily log",logShow:"Show to viewers",logHidden:"Hidden · admin only",noLog:"No entries yet",
     logHint:"Saving the same date again updates that day. Empty boxes can stay empty.",temp:"🌡 Water temp (°C)",feed:"🍤 Feed",edit:"Edit",
-    aLog:"Daily log",rptBtn:"Report",rMonth:"Monthly",rYear:"Yearly",rImage:"Image",rTitleM:"Monthly farm report",rTitleY:"Yearly farm report",
+    aLog:"Daily log",more:"Show more",less:"Show less",gTitle:"📟 Gauges (latest log)",gO2:"Oxygen tank",gVolt:"Voltage",gTemp:"Water temp",gNoVal:"No reading",rptBtn:"Report",rMonth:"Monthly",rYear:"Yearly",rImage:"Image",rTitleM:"Monthly farm report",rTitleY:"Yearly farm report",
     rKpiEnd:"Total fish at period end",rKpiDied:"Deaths in period",rKpiMed:"Medicine → hospital",rKpiTemp:"Average water temp",
     rSecDaily:"Day by day",rSecMonthly:"Month by month",rSecTanks:"Tanks (when this report was made)",rSecFeed:"Feed & water temp summary",
     rDay:"Day",rMon:"Month",rAvgTemp:"Avg temp",rMinMax:"Min / max",rSum:"Total",rNoData:"No records in this period.",
@@ -577,6 +598,11 @@ function allocate(f, n){
 function unallocate(f, out){ for(const id in out){ const x = f.tanks[id]; x.count += out[id]; if(x.status==="empty") x.status = "active"; } }
 function farmTotal(f){ return Object.values(f.tanks).reduce((a,x)=>a+(x.status==="empty"?0:x.count),0) + (f.poolAdjust||0); }
 function cntText(d){ return d.status==="empty" ? null : d.unknown ? (d.count ? fmt(d.count)+"+?" : "?") : fmt(d.count); }
+const more = {rep:false, log:false, hist:false};
+function moreBtn(key, total, shown){
+  if(total <= shown) return "";
+  return `<button class="btn ghost lmore" data-more="${key}">${more[key] ? "▲ "+t("less") : "▼ "+t("more")+` (${total-shown})`}</button>`;
+}
 function tankInfo(id){ return (data.tanks[id] ||= {count:0,status:"empty",note:""}); }
 function render(){
   document.documentElement.lang = lang;
@@ -638,12 +664,16 @@ function render(){
       <div class="rtile"><b>${fmt(dAll)}</b><span>💀 ${t("allDied")}</span></div>
       <div class="rtile"><b>${hospTxt}</b><span>🏥 ${t("inHosp")}</span></div></div>` +
     (daysAll.length ? `<div class="tscroll"><table class="dtab"><thead><tr><th>${t("date")}</th><th>💀 ${t("rDied")}</th><th>💊 ${t("colMed")}</th><th>${t("colHosp")}</th><th>${t("dayTotal")}</th>${isAdmin()?"<th></th>":""}</tr></thead><tbody>${
-      daysAll.slice(0,31).map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td><td class="d-neg">${fmt(r.died)}</td><td>${fmt(r.med)}</td><td class="muted">${Object.keys(r.medTo||{}).filter(k=>r.medTo[k]>0).join(", ")||"–"}</td><td><b>${r.total!=null?fmt(r.total):"–"}</b></td>${isAdmin()?`<td><button class="btn ghost" style="padding:4px 8px" data-day="${d}" aria-label="${t("delete")}">🗑</button></td>`:""}</tr>`).join("")
-    }</tbody></table></div>` : `<p class="muted">${t("noDaily")}</p>`);
+      daysAll.slice(0, more.rep ? 31 : 1).map(([d,r])=>`<tr><td>${d.slice(5).replace("-",".")}</td><td class="d-neg">${fmt(r.died)}</td><td>${fmt(r.med)}</td><td class="muted">${Object.keys(r.medTo||{}).filter(k=>r.medTo[k]>0).join(", ")||"–"}</td><td><b>${r.total!=null?fmt(r.total):"–"}</b></td>${isAdmin()?`<td><button class="btn ghost" style="padding:4px 8px" data-day="${d}" aria-label="${t("delete")}">🗑</button></td>`:""}</tr>`).join("")
+    }</tbody></table></div>${moreBtn("rep", daysAll.length, 1)}` : `<p class="muted">${t("noDaily")}</p>`);
   renderLog();
+  renderGauges();
 
-  const log = (data.log||[]).slice().reverse().slice(0,40);
+  const allLog = (data.log||[]).slice().reverse();
+  const log = allLog.slice(0, more.hist ? 60 : 5);
   $("#log").innerHTML = log.length ? log.map(logLine).join("") : `<li class="muted">${t("noHistory")}</li>`;
+  document.querySelectorAll("#histMore").forEach(el=>el.remove());
+  $("#log").insertAdjacentHTML("afterend", `<div id="histMore">${moreBtn("hist", allLog.length, 5)}</div>`);
   if(openId) openSheet(openId, true);
 }
 function fmtDate(s){
@@ -896,6 +926,7 @@ const LOG_FIELDS = [
   {k:"t3", g:"temp", ko:"저녁", en:"Evening", step:"0.1"},
   {k:"t4", g:"temp", ko:"9시", en:"9 pm", step:"0.1"},
   {k:"v",  g:"other", ko:"V", en:"V", step:"any"},
+  {k:"o2", g:"other", ko:"산소", en:"O₂", unit:"mmWC", step:"10"},
   {k:"raw", g:"feed", ko:"생사료 갯수", en:"Raw feed", step:"1"},
   {k:"made", g:"feed", ko:"만든 갯수", en:"Made", step:"1"},
   {k:"eaten", g:"feed", ko:"먹은 갯수", en:"Eaten", step:"1"},
@@ -913,7 +944,6 @@ function logCard(d, r, admin){
     ${r.note?`<div class="lnote">📝 ${esc(r.note)}</div>`:""}
   </article>`;
 }
-let logAll = false;
 function renderLog(){
   const admin = isAdmin(), show = logVisible();
   $("#logPanel").hidden = !admin && !show;
@@ -921,16 +951,14 @@ function renderLog(){
   $("#logHiddenBadge").hidden = !(admin && !show);
   const days = Object.entries(data.dailyLog||{}).sort((a,b)=>b[0].localeCompare(a[0]));
   if(!days.length){ $("#logList").innerHTML = `<p class="muted">${t("noLog")}</p>`; return; }
-  const shown = logAll ? days.slice(0,62) : days.slice(0,6);
-  $("#logList").innerHTML = `<div class="lcards">${shown.map(([d,r])=>logCard(d,r,admin)).join("")}</div>` +
-    (days.length > 6 ? `<button class="btn ghost lmore" id="logMore">${logAll?"▲":"▼"} ${days.length} </button>` : "");
-  if($("#logMore")) $("#logMore").onclick = () => { logAll = !logAll; renderLog(); };
+  const shown = more.log ? days.slice(0,62) : days.slice(0,1);
+  $("#logList").innerHTML = `<div class="lcards ${more.log?"":"one"}">${shown.map(([d,r])=>logCard(d,r,admin)).join("")}</div>` + moreBtn("log", days.length, 1);
 }
 function openLogForm(date){
   openId = null;
   date = date || today();
   const r = data.dailyLog?.[date] || {};
-  const inp = f => `<div><label>${esc(fLabel(f))}</label><input type="number" inputmode="decimal" step="${f.step}" data-lk="${f.k}" value="${r[f.k] ?? ""}"></div>`;
+  const inp = f => `<div><label>${esc(fLabel(f))}${f.unit?` (${f.unit})`:""}</label><input type="number" inputmode="decimal" step="${f.step}" data-lk="${f.k}" value="${r[f.k] ?? ""}"></div>`;
   $("#sheet").innerHTML = `<div class="grab"></div>
     <div class="shead"><h2>${t("logTitle")}</h2><button class="x" data-act="close">✕</button></div>
     <div class="sec" style="border:0;margin-top:2px;padding-top:2px"><label>${t("date")}</label><input id="lDate" type="date" value="${date}" style="width:auto"></div>
@@ -959,6 +987,66 @@ async function saveData(mut, msg){
   try{ data = await commit(mut, msg); toast(t("saved")); closeSheet(); render(); }
   catch(err){ toast(t("err")+": "+err.message, true); render(); }
   finally{ busy(false); }
+}
+
+/* ===================== GAUGES: O2 dial, red 7-segment volt, grey LCD temp ===================== */
+const SEG = { a:"12,3 42,3 35,11 19,11", b:"48,7 48,43 44,47 40,43 40,15", c:"48,53 48,89 40,81 40,57 44,49",
+  d:"12,93 42,93 35,85 19,85", e:"6,53 10,49 14,57 14,81 6,89", f:"6,7 14,15 14,43 10,47 6,43", g:"12,48 18,44 36,44 42,48 36,52 18,52" };
+const DIGITS = {"0":"abcdef","1":"bc","2":"abged","3":"abgcd","4":"fgbc","5":"afgcd","6":"afgedc","7":"abc","8":"abcdefg","9":"abcdfg","-":"g"," ":""};
+// Draw text as seven-segment digits. Each digit is 56 wide; a "." lights the decimal point of the digit before it.
+function sevenSeg(text, n, on, off, glow){
+  const cells = [];
+  for(const ch of String(text)){ if(ch==="." && cells.length) cells[cells.length-1].dp = true; else cells.push({ch, dp:false}); }
+  while(cells.length < n) cells.unshift({ch:" ", dp:false});
+  const W = 62, svg = cells.slice(-n).map((c, i) => {
+    const lit = DIGITS[c.ch] ?? "";
+    return `<g transform="translate(${i*W+6},4) skewX(-7)">${Object.entries(SEG).map(([k,pts])=>`<polygon points="${pts}" fill="${lit.includes(k)?on:off}"/>`).join("")}<circle cx="53" cy="91" r="4" fill="${c.dp?on:off}"/></g>`;
+  }).join("");
+  return `<svg viewBox="0 0 ${n*W+8} 104" role="img" aria-label="${esc(text)}" ${glow?`style="filter:drop-shadow(0 0 4px ${on})"`:""}>${svg}</svg>`;
+}
+function o2Dial(v){
+  const max = 7000, pt = (val, r) => { const a = (-135 + 270*val/max) * Math.PI/180; return [100 + r*Math.sin(a), 100 - r*Math.cos(a)]; };
+  let ticks = "", labels = "";
+  for(let x = 0; x <= max; x += 100){
+    const major = x % 500 === 0, [x1,y1] = pt(x, major ? 70 : 75), [x2,y2] = pt(x, 82);
+    ticks += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#f2f2f2" stroke-width="${major?1.8:.8}"/>`;
+    if(major){ const [lx,ly] = pt(x, 58); labels += `<text x="${lx.toFixed(1)}" y="${(ly+3).toFixed(1)}" font-size="${x>=1000?7.5:8}" fill="#f2f2f2" text-anchor="middle">${x}</text>`; }
+  }
+  const val = typeof v === "number" ? Math.max(0, Math.min(max, v)) : 0;
+  const [nx,ny] = pt(val, 74), [tx,ty] = pt(val, -16);
+  return `<svg viewBox="0 0 200 200" role="img" aria-label="O2 ${v??""} mmWC">
+    <circle cx="100" cy="100" r="98" fill="#16181a"/><circle cx="100" cy="100" r="92" fill="#232629"/>
+    <circle cx="100" cy="100" r="86" fill="#0d0e0f"/>
+    ${[45,135,225,315].map(a=>{const r=95,x=100+r*Math.sin(a*Math.PI/180),y=100-r*Math.cos(a*Math.PI/180);return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.2" fill="#8a9196"/>`;}).join("")}
+    ${ticks}${labels}
+    <text x="100" y="78" font-size="10" fill="#f2f2f2" text-anchor="middle" font-weight="600">MM WC</text>
+    <text x="100" y="150" font-size="9" fill="#cfd4d6" text-anchor="middle" letter-spacing="1">O₂ TANK</text>
+    <line x1="${tx.toFixed(1)}" y1="${ty.toFixed(1)}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#f4efe6" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="100" cy="100" r="6" fill="#d9b46a"/><circle cx="100" cy="100" r="2.5" fill="#6b5320"/>
+  </svg>`;
+}
+function latestLog(k){
+  const e = Object.entries(data.dailyLog||{}).filter(([,r])=>typeof r[k]==="number").sort((a,b)=>b[0].localeCompare(a[0]))[0];
+  return e ? {date:e[0], v:e[1][k], r:e[1]} : null;
+}
+function renderGauges(){
+  $("#gaugePanel").hidden = $("#logPanel").hidden;
+  const o2 = latestLog("o2"), volt = latestLog("v");
+  const tK = ["t4","t3","t2","t1"], tl = Object.entries(data.dailyLog||{}).filter(([,r])=>tK.some(k=>typeof r[k]==="number")).sort((a,b)=>b[0].localeCompare(a[0]))[0];
+  const tKey = tl && tK.find(k=>typeof tl[1][k]==="number"), temp = tl ? {date:tl[0], v:tl[1][tKey], r:tl[1]} : null;
+  const dd = x => x ? x.date.slice(5).replace("-",".") : "";
+  const dates = [o2, volt, temp].filter(Boolean).map(x=>x.date).sort();
+  $("#gDate").textContent = dates.length ? dates[dates.length-1] : "";
+  const tLbl = k => fLabel(LOG_FIELDS.find(f=>f.k===k));
+  $("#gauges").innerHTML = `
+    <div class="gcard"><div class="gtitle">🫧 ${t("gO2")}<small>mmWC · ${dd(o2)}</small></div>
+      <div class="gface">${o2Dial(o2?.v)}</div><div class="gsub"><b>${o2?fmt(o2.v):t("gNoVal")}</b>${o2?" mmWC":""}</div></div>
+    <div class="gcard"><div class="gtitle">⚡ ${t("gVolt")}<small>V · ${dd(volt)}</small></div>
+      <div class="gface"><div class="seg-red"><div class="scr">${sevenSeg(volt ? String(volt.v) : "----", 4, "#ff2a1a", "#2c0705", true)}</div></div></div>
+      <div class="gsub">${volt?"":t("gNoVal")}</div></div>
+    <div class="gcard"><div class="gtitle">🌡 ${t("gTemp")}<small>°C · ${dd(temp)} ${temp?tLbl(tKey):""}</small></div>
+      <div class="gface"><div class="seg-lcd"><div class="scr"><span class="unit">°C</span>${sevenSeg(temp ? temp.v.toFixed(1) : "--.-", 3, "#1b211e", "rgba(0,0,0,.07)", false)}</div></div></div>
+      <div class="gsub">${temp ? tK.slice().reverse().filter(k=>typeof temp.r[k]==="number").map(k=>`${tLbl(k)} ${temp.r[k].toFixed(1)}`).join(" · ") : t("gNoVal")}</div></div>`;
 }
 
 /* ===================== MONTH / YEAR REPORT (PDF · image) ===================== */
@@ -996,12 +1084,12 @@ function buildReport(){
     const D = Object.fromEntries(st.daily), L = Object.fromEntries(st.logs);
     rows = [...days].sort().map(d => { const r = D[d]||{}, l = L[d]||{};
       return `<tr><td>${d.slice(5).replace("-",".")} (${weekday(d)})</td><td class="rneg">${r.died?fmt(r.died):""}</td><td>${r.med?fmt(r.med):""}</td>
-        ${["t1","t2","t3","t4"].map(k=>`<td>${l[k]??""}</td>`).join("")}<td>${l.v??""}</td><td>${l.raw??""}</td><td>${l.made??""}</td><td>${l.eaten??""}</td>
+        ${["t1","t2","t3","t4"].map(k=>`<td>${l[k]??""}</td>`).join("")}<td>${l.v??""}</td><td>${l.o2??""}</td><td>${l.raw??""}</td><td>${l.made??""}</td><td>${l.eaten??""}</td>
         <td>${r.total!=null?fmt(r.total):""}</td></tr>`; }).join("");
     rows = rows ? `<table class="rtab"><thead><tr><th rowspan="2">${t("rDay")}</th><th rowspan="2">💀 ${t("rDied")}</th><th rowspan="2">💊 ${t("colMed")}</th>
-        <th colspan="4">${t("temp")}</th><th rowspan="2">V</th><th colspan="3">${t("feedLbl")}</th><th rowspan="2">${t("dayTotal")}</th></tr>
+        <th colspan="4">${t("temp")}</th><th rowspan="2">V</th><th rowspan="2">O₂</th><th colspan="3">${t("feedLbl")}</th><th rowspan="2">${t("dayTotal")}</th></tr>
         <tr>${LOG_FIELDS.filter(f=>f.g==="temp").map(f=>`<th>${esc(fLabel(f))}</th>`).join("")}${LOG_FIELDS.filter(f=>f.g==="feed").map(f=>`<th>${esc(fLabel(f))}</th>`).join("")}</tr></thead>
-        <tbody>${rows}<tr class="sum"><td>${t("rSum")}</td><td class="rneg">${fmt(st.died)}</td><td>${fmt(st.med)}</td><td colspan="4">${t("rAvgTemp")} ${f1(st.tAvg)}°</td><td></td>
+        <tbody>${rows}<tr class="sum"><td>${t("rSum")}</td><td class="rneg">${fmt(st.died)}</td><td>${fmt(st.med)}</td><td colspan="4">${t("rAvgTemp")} ${f1(st.tAvg)}°</td><td></td><td></td>
         <td>${fmt(st.raw)}</td><td>${fmt(st.made)}</td><td>${fmt(st.eaten)}</td><td>${st.endTotal!=null?fmt(st.endTotal):""}</td></tr></tbody></table>` : "";
   } else {
     rows = Array.from({length:12}, (_,i) => { const mp = `${prefix}-${String(i+1).padStart(2,"0")}`, m = periodStats(mp);
@@ -1146,6 +1234,7 @@ function busy(on){ $("#busy").classList.toggle("on",on); }
 document.addEventListener("click", e => {
   const tank = e.target.closest(".tank"); if(tank){ openSheet(tank.dataset.id); return; }
   const a = e.target.closest("[data-act]"); if(a){ act(a.dataset.act); return; }
+  const mb = e.target.closest("[data-more]"); if(mb){ more[mb.dataset.more] = !more[mb.dataset.more]; render(); return; }
   const lday = e.target.closest("[data-logday]"); if(lday){ openLogForm(lday.dataset.logday); return; }
   const day = e.target.closest("[data-day]"); if(day){ openDay(day.dataset.day); return; }
   const del = e.target.closest("[data-del]"); if(del){ delEntry(del.dataset.date, del.dataset.del); return; }
