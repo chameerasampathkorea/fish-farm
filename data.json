@@ -1,55 +1,55 @@
 {
   "farm": "더조은수산",
-  "updated": "2026-11-27T03:08:36.486Z",
+  "updated": "2026-11-27T09:00:56.195Z",
   "tanks": {
     "111": {
-      "count": 1415,
+      "count": 1414,
       "status": "active",
       "note": ""
     },
     "112": {
-      "count": 1564,
+      "count": 1561,
       "status": "active",
       "note": ""
     },
     "113": {
-      "count": 1554,
+      "count": 1552,
       "status": "active",
       "note": ""
     },
     "114": {
-      "count": 210,
+      "count": 212,
       "status": "active",
       "note": "",
       "hospital": true
     },
     "121": {
-      "count": 1555,
+      "count": 1552,
       "status": "active",
       "note": ""
     },
     "122": {
-      "count": 1475,
+      "count": 1474,
       "status": "active",
       "note": ""
     },
     "123": {
-      "count": 1505,
+      "count": 1503,
       "status": "active",
       "note": ""
     },
     "124": {
-      "count": 1415,
+      "count": 1414,
       "status": "active",
       "note": ""
     },
     "125": {
-      "count": 2092,
+      "count": 2088,
       "status": "active",
       "note": ""
     },
     "131": {
-      "count": 1396,
+      "count": 1395,
       "status": "active",
       "note": ""
     },
@@ -64,22 +64,22 @@
       "note": ""
     },
     "134": {
-      "count": 1475,
+      "count": 1474,
       "status": "active",
       "note": ""
     },
     "135": {
-      "count": 1396,
+      "count": 1395,
       "status": "active",
       "note": ""
     },
     "136": {
-      "count": 1545,
+      "count": 1543,
       "status": "active",
       "note": ""
     },
     "137": {
-      "count": 1564,
+      "count": 1561,
       "status": "active",
       "note": ""
     },
@@ -89,12 +89,12 @@
       "note": ""
     },
     "212": {
-      "count": 1435,
+      "count": 1434,
       "status": "active",
       "note": ""
     },
     "213": {
-      "count": 129,
+      "count": 151,
       "status": "active",
       "note": "",
       "label": "",
@@ -102,7 +102,7 @@
       "unknown": true
     },
     "214": {
-      "count": 1674,
+      "count": 1670,
       "status": "active",
       "note": ""
     },
@@ -122,7 +122,7 @@
       "note": ""
     },
     "224": {
-      "count": 1535,
+      "count": 1533,
       "status": "active",
       "note": ""
     },
@@ -137,7 +137,7 @@
       "note": ""
     },
     "313": {
-      "count": 1465,
+      "count": 1464,
       "status": "active",
       "note": ""
     },
@@ -399,6 +399,43 @@
       "tank": "ALL",
       "action": "Log",
       "date": "2026-11-26"
+    },
+    {
+      "t": "2026-11-27T09:00:56.194Z",
+      "tank": "ALL",
+      "action": "Died",
+      "date": "2026-11-27",
+      "died": 9
+    },
+    {
+      "t": "2026-11-27T09:00:56.194Z",
+      "tank": "213",
+      "action": "Medicine",
+      "other": "",
+      "date": "2026-11-27",
+      "from": 129,
+      "to": 146,
+      "med": 17
+    },
+    {
+      "t": "2026-11-27T09:00:56.194Z",
+      "tank": "114",
+      "action": "Medicine",
+      "other": "",
+      "date": "2026-11-27",
+      "from": 210,
+      "to": 212,
+      "med": 2
+    },
+    {
+      "t": "2026-11-27T09:00:56.194Z",
+      "tank": "213",
+      "action": "Medicine",
+      "other": "",
+      "date": "2026-11-27",
+      "from": 146,
+      "to": 151,
+      "med": 5
     }
   ],
   "daily": {
@@ -466,6 +503,80 @@
         "213": 129
       },
       "total": 40585
+    },
+    "2026-11-27": {
+      "died": 9,
+      "med": 24,
+      "entries": [
+        {
+          "id": "mwyr4jcz",
+          "t": "2026-11-27T09:00:56.194Z",
+          "died": 9,
+          "meds": [
+            {
+              "n": 17,
+              "from": "",
+              "to": "213",
+              "alloc": {
+                "111": 1,
+                "112": 1,
+                "113": 1,
+                "121": 1,
+                "122": 1,
+                "123": 1,
+                "124": 1,
+                "125": 1,
+                "131": 1,
+                "134": 1,
+                "135": 1,
+                "136": 1,
+                "137": 1,
+                "212": 1,
+                "214": 1,
+                "224": 1,
+                "313": 1
+              }
+            },
+            {
+              "n": 2,
+              "from": "",
+              "to": "114",
+              "alloc": {
+                "125": 1,
+                "214": 1
+              }
+            },
+            {
+              "n": 5,
+              "from": "",
+              "to": "213",
+              "alloc": {
+                "112": 1,
+                "121": 1,
+                "125": 1,
+                "137": 1,
+                "214": 1
+              }
+            }
+          ],
+          "alloc": {
+            "112": 1,
+            "113": 1,
+            "121": 1,
+            "123": 1,
+            "125": 1,
+            "136": 1,
+            "137": 1,
+            "214": 1,
+            "224": 1
+          }
+        }
+      ],
+      "medTo": {
+        "114": 2,
+        "213": 22
+      },
+      "total": 41486
     }
   },
   "appVersion": 6,
